@@ -95,7 +95,7 @@ class ChatResult:
 
     def assistant_message(self) -> dict[str, Any]:
         """The message to append to the conversation before sending tool results."""
-        msg: dict[str, Any] = {"role": "assistant", "content": self.content or None}
+        msg: dict[str, Any] = {"role": "assistant", "content": self.content or ""}
         if self.tool_calls:
             msg["tool_calls"] = [
                 {"id": tc.id, "type": "function", "function": {"name": tc.name, "arguments": tc.arguments}}
