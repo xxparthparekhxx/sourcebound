@@ -148,10 +148,12 @@ def cmd_ask(cfg: Config, a) -> int:
             _err(f"warning: removed citation(s) {', '.join('[%d]' % n for n in flagged)}: not passages the model was given")
         if done.get("uncited") and not done.get("no_answer"):
             _err("warning: the answer cites no passage")
-        mode = done.get("mode", "")
-        if done.get("fallback"):
-            mode += " (agent fallback)"
-        _err(f"[{mode}; {done.get('endpoint', '')} {done.get('model', '')}]".replace("  ", " "))
+        sys.stdout.flush()
+        if done.get("no_answer"):
+            _err("[no answer: nothing relevant was retrieved, so no model was called]")
+        else:
+            mode = done.get("mode", "") + (" (fell back from agent)" if done.get("fallback") else "")
+            _err(f"[{mode}; {done.get('endpoint', '')} / {done.get('model', '')}]")
         return 0
     finally:
         rt.close()

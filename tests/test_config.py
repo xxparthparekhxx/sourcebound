@@ -12,7 +12,7 @@ def write(tmp_path, text):
 def test_defaults_use_local_ollama_without_a_key(tmp_path):
     cfg = load_config(env={})
     assert [e.base_url for e in cfg.chat.endpoints] == ["http://localhost:11434/v1"]
-    assert cfg.chat.endpoints[0].options == {"reasoning_effort": "none"}
+    assert cfg.chat.endpoints[0].options["reasoning_effort"] == "none"
     assert cfg.chat.endpoints[0].available({})
     assert cfg.embeddings.provider == "local"
 

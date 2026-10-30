@@ -78,7 +78,10 @@ class ChatConfig(_Model):
                 base_url="http://localhost:11434/v1",
                 model="bonsai-2",
                 context_tokens=4096,
-                options={"reasoning_effort": "none"},
+                options={
+                    "reasoning_effort": "none",  # bonsai-2 thinks by default; turn that off
+                    "temperature": 0.7, "top_p": 0.8, "top_k": 20, "min_p": 0.0, "presence_penalty": 1.5,
+                },
             )
         ]
     )
