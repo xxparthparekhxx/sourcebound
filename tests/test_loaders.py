@@ -1,7 +1,7 @@
 import pymupdf
 import pytest
 
-from docgraph.ingest.loaders import (
+from sourcebound.ingest.loaders import (
     UnsupportedFormat, load_file, parse_html, parse_markdown, parse_text,
 )
 

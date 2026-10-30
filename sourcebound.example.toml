@@ -1,7 +1,7 @@
-# Copy to docgraph.toml (or set DOCGRAPH_CONFIG). API keys never go in this file:
+# Copy to sourcebound.toml (or set SOURCEBOUND_CONFIG). API keys never go in this file:
 # an endpoint names the environment variable that holds its key.
 
-data_dir = ".docgraph"
+data_dir = ".sourcebound"
 
 # ---------------------------------------------------------------- chat endpoints
 # Tried in order. A connection error, timeout, HTTP 429 or 5xx moves on to the next one.
@@ -31,9 +31,9 @@ base_url = "http://localhost:11434/v1"
 model = "bonsai-2"
 # Ollama truncates prompts to its context length (4096 unless the server is started with
 # OLLAMA_CONTEXT_LENGTH, or the model has num_ctx in a Modelfile). Declare the real value here:
-# docgraph then trims passages to fit, and never sends a prompt that would be cut off silently.
+# sourcebound then trims passages to fit, and never sends a prompt that would be cut off silently.
 context_tokens = 4096
-# Sent with every request to this endpoint. These win over docgraph's own defaults.
+# Sent with every request to this endpoint. These win over sourcebound's own defaults.
 # bonsai-2 thinks by default; "none" turns that off. Sampling values are the model card's
 # recommendations for non-thinking use.
 options = { reasoning_effort = "none", temperature = 0.7, top_p = 0.8, top_k = 20, min_p = 0.0, presence_penalty = 1.5 }

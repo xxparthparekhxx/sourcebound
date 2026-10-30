@@ -1,6 +1,6 @@
 import pytest
 
-from docgraph.citations import CitationFilter, validate_citations
+from sourcebound.citations import CitationFilter, validate_citations
 
 
 def test_valid_markers_pass_through_unchanged():

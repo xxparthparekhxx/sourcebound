@@ -5,7 +5,7 @@
   "git_dirty": false,
   "python": "3.12.14",
   "platform": "Linux-7.3.0-5-cachyos-x86_64-with-glibc2.44",
-  "command": "answers.py --tag openrouter-nemotron --endpoint openrouter --n 30 --max-requests 60 --passes 3 --backoff 5 --config docgraph.example.toml",
+  "command": "answers.py --tag openrouter-nemotron --endpoint openrouter --n 30 --max-requests 60 --passes 3 --backoff 5 --config sourcebound.example.toml",
   "task": "answer quality (citation precision, faithfulness)",
   "dataset": {
    "dataset": "allenai/qasper",

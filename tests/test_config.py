@@ -1,10 +1,10 @@
 import pytest
 
-from docgraph.config import ConfigError, EndpointConfig, load_config, load_dotenv
+from sourcebound.config import ConfigError, EndpointConfig, load_config, load_dotenv
 
 
 def write(tmp_path, text):
-    p = tmp_path / "docgraph.toml"
+    p = tmp_path / "sourcebound.toml"
     p.write_text(text)
     return p
 
@@ -70,8 +70,8 @@ def test_keys_come_from_the_environment_only():
 
 
 def test_env_shortcut_replaces_endpoints_and_sets_data_dir(tmp_path):
-    env = {"DOCGRAPH_BASE_URL": "http://h:1/v1", "DOCGRAPH_MODEL": "m1", "DOCGRAPH_API_KEY_ENV": "K",
-           "DOCGRAPH_DATA_DIR": str(tmp_path / "d")}
+    env = {"SOURCEBOUND_BASE_URL": "http://h:1/v1", "SOURCEBOUND_MODEL": "m1", "SOURCEBOUND_API_KEY_ENV": "K",
+           "SOURCEBOUND_DATA_DIR": str(tmp_path / "d")}
     cfg = load_config(env=env)
     assert len(cfg.chat.endpoints) == 1
     assert cfg.chat.endpoints[0].model == "m1" and cfg.chat.endpoints[0].api_key_env == "K"
@@ -79,7 +79,7 @@ def test_env_shortcut_replaces_endpoints_and_sets_data_dir(tmp_path):
 
 
 def test_embedding_env_overrides():
-    cfg = load_config(env={"DOCGRAPH_EMBED_BASE_URL": "http://e/v1", "DOCGRAPH_EMBED_MODEL": "nomic-embed-text"})
+    cfg = load_config(env={"SOURCEBOUND_EMBED_BASE_URL": "http://e/v1", "SOURCEBOUND_EMBED_MODEL": "nomic-embed-text"})
     assert cfg.embeddings.provider == "openai" and cfg.embeddings.model == "nomic-embed-text"
 
 

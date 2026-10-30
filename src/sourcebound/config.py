@@ -184,7 +184,7 @@ class AnswerConfig(_Model):
 
 
 class Config(_Model):
-    data_dir: Path = Path(".docgraph")
+    data_dir: Path = Path(".sourcebound")
     chat: ChatConfig = Field(default_factory=ChatConfig)
     embeddings: EmbeddingsConfig = Field(default_factory=EmbeddingsConfig)
     ingest: IngestConfig = Field(default_factory=IngestConfig)
@@ -194,7 +194,7 @@ class Config(_Model):
 
     @property
     def db_path(self) -> Path:
-        return self.data_dir / "docgraph.db"
+        return self.data_dir / "sourcebound.db"
 
     @property
     def chroma_path(self) -> Path:
@@ -228,12 +228,12 @@ def find_config_file(explicit: str | Path | None, env: Mapping[str, str]) -> Pat
         if not p.is_file():
             raise ConfigError(f"config file not found: {p}")
         return p
-    if env.get("DOCGRAPH_CONFIG"):
-        p = Path(env["DOCGRAPH_CONFIG"])
+    if env.get("SOURCEBOUND_CONFIG"):
+        p = Path(env["SOURCEBOUND_CONFIG"])
         if not p.is_file():
-            raise ConfigError(f"DOCGRAPH_CONFIG points to a missing file: {p}")
+            raise ConfigError(f"SOURCEBOUND_CONFIG points to a missing file: {p}")
         return p
-    for candidate in (Path("docgraph.toml"), Path.home() / ".config" / "docgraph" / "config.toml"):
+    for candidate in (Path("sourcebound.toml"), Path.home() / ".config" / "sourcebound" / "config.toml"):
         if candidate.is_file():
             return candidate
     return None
@@ -241,32 +241,32 @@ def find_config_file(explicit: str | Path | None, env: Mapping[str, str]) -> Pat
 
 def _apply_env(raw: dict[str, Any], env: Mapping[str, str]) -> dict[str, Any]:
     """Environment overrides. Only simple, documented variables; everything else lives in the file."""
-    if env.get("DOCGRAPH_DATA_DIR"):
-        raw["data_dir"] = env["DOCGRAPH_DATA_DIR"]
+    if env.get("SOURCEBOUND_DATA_DIR"):
+        raw["data_dir"] = env["SOURCEBOUND_DATA_DIR"]
 
-    # One-endpoint shortcut: DOCGRAPH_BASE_URL (+ DOCGRAPH_MODEL, DOCGRAPH_API_KEY_ENV)
+    # One-endpoint shortcut: SOURCEBOUND_BASE_URL (+ SOURCEBOUND_MODEL, SOURCEBOUND_API_KEY_ENV)
     # replaces the endpoint list. Handy for "just point it at my server".
-    if env.get("DOCGRAPH_BASE_URL"):
-        ep: dict[str, Any] = {"base_url": env["DOCGRAPH_BASE_URL"], "name": "env"}
-        ep["model"] = env.get("DOCGRAPH_MODEL") or "default"
-        if env.get("DOCGRAPH_API_KEY_ENV"):
-            ep["api_key_env"] = env["DOCGRAPH_API_KEY_ENV"]
+    if env.get("SOURCEBOUND_BASE_URL"):
+        ep: dict[str, Any] = {"base_url": env["SOURCEBOUND_BASE_URL"], "name": "env"}
+        ep["model"] = env.get("SOURCEBOUND_MODEL") or "default"
+        if env.get("SOURCEBOUND_API_KEY_ENV"):
+            ep["api_key_env"] = env["SOURCEBOUND_API_KEY_ENV"]
         raw.setdefault("chat", {})["endpoints"] = [ep]
-    elif env.get("DOCGRAPH_MODEL"):
+    elif env.get("SOURCEBOUND_MODEL"):
         eps = raw.setdefault("chat", {}).get("endpoints")
         if eps:
-            eps[0]["model"] = env["DOCGRAPH_MODEL"]
+            eps[0]["model"] = env["SOURCEBOUND_MODEL"]
 
     emb = raw.setdefault("embeddings", {})
     for var, field in (
-        ("DOCGRAPH_EMBED_PROVIDER", "provider"),
-        ("DOCGRAPH_EMBED_MODEL", "model"),
-        ("DOCGRAPH_EMBED_BASE_URL", "base_url"),
-        ("DOCGRAPH_EMBED_API_KEY_ENV", "api_key_env"),
+        ("SOURCEBOUND_EMBED_PROVIDER", "provider"),
+        ("SOURCEBOUND_EMBED_MODEL", "model"),
+        ("SOURCEBOUND_EMBED_BASE_URL", "base_url"),
+        ("SOURCEBOUND_EMBED_API_KEY_ENV", "api_key_env"),
     ):
         if env.get(var):
             emb[field] = env[var]
-    if env.get("DOCGRAPH_EMBED_BASE_URL") and "provider" not in emb:
+    if env.get("SOURCEBOUND_EMBED_BASE_URL") and "provider" not in emb:
         emb["provider"] = "openai"
     return raw
 

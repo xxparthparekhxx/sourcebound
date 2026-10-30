@@ -1,8 +1,8 @@
 import pytest
 
-from docgraph.config import EndpointConfig
-from docgraph.embeddings import OpenAIEmbedder
-from docgraph.llm import (
+from sourcebound.config import EndpointConfig
+from sourcebound.embeddings import OpenAIEmbedder
+from sourcebound.llm import (
     AllEndpointsFailed, ChatClient, EndpointRejected, Final, NoUsableEndpoint, PromptTooLong,
     TextDelta, ToolsUnsupported, estimate_tokens,
 )

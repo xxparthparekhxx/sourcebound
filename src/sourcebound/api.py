@@ -16,7 +16,7 @@ from . import __version__
 from .config import Config, load_config
 from .runtime import Runtime
 
-log = logging.getLogger("docgraph.api")
+log = logging.getLogger("sourcebound.api")
 STATIC = Path(__file__).parent / "static"
 
 
@@ -55,7 +55,7 @@ def create_app(
         if runtime is None:
             app.state.rt.close()
 
-    app = FastAPI(title="docgraph", version=__version__, lifespan=lifespan)
+    app = FastAPI(title="sourcebound", version=__version__, lifespan=lifespan)
 
     def rt() -> Runtime:
         return app.state.rt
@@ -95,7 +95,7 @@ def create_app(
 
         def events() -> Iterator[str]:
             if r.index.count("chunks") == 0:
-                yield sse("error", {"message": "The index is empty. Run `docgraph ingest <path>` first."})
+                yield sse("error", {"message": "The index is empty. Run `sourcebound ingest <path>` first."})
                 return
             try:
                 for ev in r.answerer.stream(req.question, mode=req.mode, **overrides):

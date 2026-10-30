@@ -1,6 +1,6 @@
 import pytest
 
-from docgraph.cli import main
+from sourcebound.cli import main
 from fakes import Reply
 
 DOC = "# Cats\n\n## Sleep\n\nCats sleep for up to sixteen hours every day, mostly in sunny spots.\n"
@@ -10,7 +10,7 @@ DOC = "# Cats\n\n## Sleep\n\nCats sleep for up to sixteen hours every day, mostl
 def conf(tmp_path, llm_servers, monkeypatch):
     srv = llm_servers(Reply(content="Cats sleep sixteen hours [1]. Not given [9]."))
     srv.embed_dim = 64
-    cfg = tmp_path / "docgraph.toml"
+    cfg = tmp_path / "sourcebound.toml"
     cfg.write_text(f'''
 data_dir = "{tmp_path / 'idx'}"
 [[chat.endpoints]]

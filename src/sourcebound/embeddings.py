@@ -52,7 +52,7 @@ class LocalEmbedder:
         self.model = model
         self.batch_size = batch_size
         self._dim = int(supported[model]["dim"])
-        cache = Path(cache_dir or os.environ.get("FASTEMBED_CACHE_PATH") or Path.home() / ".cache" / "docgraph" / "fastembed")
+        cache = Path(cache_dir or os.environ.get("FASTEMBED_CACHE_PATH") or Path.home() / ".cache" / "sourcebound" / "fastembed")
         cache.mkdir(parents=True, exist_ok=True)
         self._te = TextEmbedding(model_name=model, cache_dir=str(cache))
 

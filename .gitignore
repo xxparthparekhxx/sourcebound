@@ -3,7 +3,7 @@ __pycache__/
 *.pyc
 .pytest_cache/
 .env
-.docgraph/
+.sourcebound/
 *.egg-info/
 dist/
 eval/data/

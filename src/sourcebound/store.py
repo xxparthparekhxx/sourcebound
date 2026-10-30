@@ -223,7 +223,7 @@ class Index:
         return (
             f"this index was built with embedding model {stored['model']!r} (dimension {stored['dimension']}), "
             f"but the configuration now uses {now}. Vectors from different models cannot be mixed. "
-            "Point data_dir at a new directory, or run `docgraph reset` and ingest again."
+            "Point data_dir at a new directory, or run `sourcebound reset` and ingest again."
         )
 
     def _need_embedder(self) -> Embedder:

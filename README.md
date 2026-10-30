@@ -1,8 +1,7 @@
-# docgraph
+# sourcebound
 
 A document assistant that answers questions over a set of local documents and cites its sources.
 It runs fully locally with [Ollama](https://ollama.com), or against any OpenAI-compatible endpoint.
-"docgraph" is a working name.
 
 - **Ingest** PDF (with page numbers), Markdown, plain text and HTML. Chunking follows headings and
   paragraphs. Re-ingesting a changed file replaces its chunks.
@@ -38,7 +37,7 @@ It runs fully locally with [Ollama](https://ollama.com), or against any OpenAI-c
 Requires Python 3.12 and [uv](https://docs.astral.sh/uv/).
 
 ```bash
-git clone <this repository> && cd docgraph
+git clone <this repository> && cd sourcebound
 uv sync                               # add `--extra rerank` for openjev-flash, `--extra eval` for the evaluation
 cp .env.example .env                  # only needed for endpoints that use API keys
 ```
@@ -50,16 +49,16 @@ at `http://localhost:11434/v1`, so no config file is needed:
 
 ```bash
 ollama pull bonsai-2
-uv run docgraph ingest ./my-documents          # first run downloads a ~130 MB embedding model
-uv run docgraph ask "What optimizer was used, and with which hyperparameters?"
-uv run docgraph serve                          # http://127.0.0.1:8000
+uv run sourcebound ingest ./my-documents          # first run downloads a ~130 MB embedding model
+uv run sourcebound ask "What optimizer was used, and with which hyperparameters?"
+uv run sourcebound serve                          # http://127.0.0.1:8000
 ```
 
 Two Ollama details that matter:
 
 - **Context length.** Ollama truncates prompts to its context length (4096 by default) without
   telling the client. Set `context_tokens` on the endpoint to the real value (the example config does,
-  for 4096). docgraph then drops the lowest-ranked passages to fit and never sends a prompt that would
+  for 4096). sourcebound then drops the lowest-ranked passages to fit and never sends a prompt that would
   be cut off; if even one passage does not fit, it fails with an error. The estimate is rough, so when the server reports far fewer prompt tokens than the prompt contains, the answer gets a warning notice. To use more context, start the
   server with `OLLAMA_CONTEXT_LENGTH=16384` and raise `context_tokens` to match.
 - **Thinking models.** `bonsai-2` thinks by default. `options = { reasoning_effort = "none" }` on the
@@ -70,15 +69,15 @@ Two Ollama details that matter:
 
 ```bash
 export OPENAI_API_KEY=...                      # the key stays in the environment, never in a file
-export DOCGRAPH_BASE_URL=https://api.openai.com/v1
-export DOCGRAPH_MODEL=gpt-4o-mini
-export DOCGRAPH_API_KEY_ENV=OPENAI_API_KEY
-uv run docgraph ingest ./my-documents
-uv run docgraph ask "..."
+export SOURCEBOUND_BASE_URL=https://api.openai.com/v1
+export SOURCEBOUND_MODEL=gpt-4o-mini
+export SOURCEBOUND_API_KEY_ENV=OPENAI_API_KEY
+uv run sourcebound ingest ./my-documents
+uv run sourcebound ask "..."
 ```
 
-For several endpoints with fallback, copy [`docgraph.example.toml`](docgraph.example.toml) to
-`docgraph.toml`. Endpoints are tried in order; a connection error, timeout, HTTP 429 or 5xx moves on to
+For several endpoints with fallback, copy [`sourcebound.example.toml`](sourcebound.example.toml) to
+`sourcebound.toml`. Endpoints are tried in order; a connection error, timeout, HTTP 429 or 5xx moves on to
 the next one, and an endpoint whose key variable is unset is skipped. Other HTTP errors (a bad key,
 an unknown model) are reported, not retried elsewhere. A streamed answer can only fall back before its
 first token.
@@ -107,7 +106,7 @@ options = { reasoning_effort = "none" }
 Embeddings are configured separately (`[embeddings]`): `provider = "local"` runs a small CPU model
 through fastembed (default `BAAI/bge-small-en-v1.5`), `provider = "openai"` uses any `/v1/embeddings`
 endpoint. The index records the embedding model name and dimension, and refuses to be opened with a
-different one (it tells you to use a new `data_dir` or run `docgraph reset`).
+different one (it tells you to use a new `data_dir` or run `sourcebound reset`).
 
 API keys are read from environment variables only; a config file that contains `api_key = ...` is
 rejected. `.env` in the working directory is loaded without overriding variables that are already set.
@@ -115,12 +114,12 @@ rejected. `.env` in the working directory is loaded without overriding variables
 ## Commands
 
 ```
-docgraph ingest <path> [--graph] [--ocr] [--force]   index a file or directory
-docgraph ask "<question>" [--mode pipeline|agent] [--top-k N] [--no-vector] [--no-bm25] [--no-mmr]
+sourcebound ingest <path> [--graph] [--ocr] [--force]   index a file or directory
+sourcebound ask "<question>" [--mode pipeline|agent] [--top-k N] [--no-vector] [--no-bm25] [--no-mmr]
                           [--graph] [--rerank] [--json]
-docgraph docs | remove <path> | reset --yes          inspect and manage the index
-docgraph serve [--host 127.0.0.1] [--port 8000]
-docgraph eval prepare|retrieval|answers|dev|report   the Qasper evaluation (needs a source checkout)
+sourcebound docs | remove <path> | reset --yes          inspect and manage the index
+sourcebound serve [--host 127.0.0.1] [--port 8000]
+sourcebound eval prepare|retrieval|answers|dev|report   the Qasper evaluation (needs a source checkout)
 ```
 
 - `ingest` skips unchanged files (SHA-256) and replaces a changed file's chunks, vectors and graph rows.
@@ -130,7 +129,7 @@ docgraph eval prepare|retrieval|answers|dev|report   the Qasper evaluation (need
   against a schema and dropped when they do not fit. This is slow on a small local model (see the
   evaluation notes), which is why it is a flag.
 
-HTTP API (`docgraph serve`):
+HTTP API (`sourcebound serve`):
 
 | endpoint | |
 |---|---|
@@ -170,14 +169,14 @@ partly valid `[1, 9]` becomes `[1]`). Removed numbers are reported as `flagged`.
 **Agent mode.** The model gets `search_documents`, `read_passage` and `related_entities` through native
 tool calling, at most `answer.max_steps` rounds; after that it must answer from what it has. Passages are
 numbered as the tools return them. If the endpoint rejects tools, a tool call is malformed (bad JSON, an
-unknown tool, a missing or mistyped argument), or the model answers without searching, docgraph falls back
+unknown tool, a missing or mistyped argument), or the model answers without searching, sourcebound falls back
 to pipeline mode automatically and says so (`notice` event, `fallback` in `done`).
 
 ## Evaluation
 
 Everything below is produced by scripts in `eval/` and can be regenerated; the raw per-question JSON is in
 [`eval/results/`](eval/results) and [`eval/results/SUMMARY.md`](eval/results/SUMMARY.md) is written by
-`docgraph eval report`. Numbers are copied from those files. All runs are from 2026-10-30.
+`sourcebound eval report`. Numbers are copied from those files. All runs are from 2026-10-30.
 
 **Data.** [Qasper](https://huggingface.co/datasets/allenai/qasper) (CC BY 4.0), validation split: 40 papers and the
 176 answerable questions with annotated evidence that belong to them, converted to Markdown (title, abstract, sections,
@@ -188,11 +187,11 @@ paragraph's word 5-grams occur in it; 466 of the 483 gold paragraphs are covered
 over the question's annotators. Cells are the mean with a 95% bootstrap interval over questions.
 
 ```bash
-docgraph eval prepare                                   # downloads Qasper, writes eval/data/qasper
-docgraph eval retrieval --build --graph                 # index the papers; --graph runs entity extraction (bonsai-2, 5,186 s)
-docgraph eval retrieval --tag main                      # ablation; settings can be added later with --update
-docgraph eval answers --tag ollama-bonsai2 --endpoint ollama --n 30
-docgraph eval report
+sourcebound eval prepare                                   # downloads Qasper, writes eval/data/qasper
+sourcebound eval retrieval --build --graph                 # index the papers; --graph runs entity extraction (bonsai-2, 5,186 s)
+sourcebound eval retrieval --tag main                      # ablation; settings can be added later with --update
+sourcebound eval answers --tag ollama-bonsai2 --endpoint ollama --n 30
+sourcebound eval report
 ```
 
 ### Retrieval ablation (40 held-out papers, 176 questions)
@@ -275,7 +274,7 @@ Only what was actually run (2026-10-30, Linux, Python 3.12):
 | component | what was run |
 |---|---|
 | Chat, local | Ollama 0.40.13 at `http://localhost:11434/v1`, `bonsai-2` (Prism ML, ternary 9B, 3.2 GB) on a laptop GPU, `reasoning_effort = "none"`, native tool calling. Used for pipeline and agent answers, graph extraction, the CLI, the HTTP API and the evals. Ollama's context length was left at its default of 4,096. |
-| Chat, hosted | OpenRouter (`https://openrouter.ai/api/v1`) with `nvidia/nemotron-3.5-super-vl:free`, pipeline mode: the 30-question answer eval and one CLI `ask` through the `DOCGRAPH_BASE_URL` shortcut. |
+| Chat, hosted | OpenRouter (`https://openrouter.ai/api/v1`) with `nvidia/nemotron-3.5-super-vl:free`, pipeline mode: the 30-question answer eval and one CLI `ask` through the `SOURCEBOUND_BASE_URL` shortcut. |
 | Fallback | A dead endpoint (connection refused) listed before Ollama: the answer came from Ollama. A 429 on the first endpoint is covered only by unit tests against a local fake server. |
 | Embeddings | `BAAI/bge-small-en-v1.5` through fastembed on CPU. `provider = "openai"` embeddings were exercised only against the fake server in the tests. |
 | Rerank / faithfulness | `xxparthparekhxx/openjev-flash`, CPU torch. |
@@ -292,7 +291,7 @@ not), agent → pipeline fallback, the embedding-model guard, the context-length
 ## Limits and what is not done
 
 - **Context length is the caller's responsibility.** Ollama's OpenAI-compatible API cannot raise the context length per request
-  and truncates silently. docgraph trims passages to the `context_tokens` you declare (using a 3.5 characters-per-token estimate)
+  and truncates silently. sourcebound trims passages to the `context_tokens` you declare (using a 3.5 characters-per-token estimate)
   and refuses prompts that do not fit. As a second line of defence, if the server's reported `prompt_tokens` is far below what the
   prompt must contain, the answer carries a `Warning:` notice and `truncated` is set. That check needs the server's usage report
   and a declared `context_tokens`; it cannot catch a truncation of a few tokens.
@@ -305,7 +304,7 @@ not), agent → pipeline fallback, the embedding-model guard, the context-length
 - **Not verified:** OCR on real scans, PDFs larger than the unit-test files, non-English documents, concurrent users, an OpenAI-compatible
   endpoint other than Ollama and OpenRouter, `provider = "openai"` embeddings against a real server.
 - **Agent mode** depends on the endpoint supporting tool calls; otherwise it falls back to pipeline mode. Small models cite less reliably in it (see above).
-- **Security.** `docgraph serve` has no authentication and is meant for localhost; put a proxy in front of it or pass
+- **Security.** `sourcebound serve` has no authentication and is meant for localhost; put a proxy in front of it or pass
   `ask_dependencies` to `create_app` before exposing it. Answers are only as trustworthy as the documents: text in a document is
   placed in the prompt and can try to steer the model.
 - **Not done:** the public demo layer, a React UI, Neo4j or another graph database, analytics, user accounts, multi-user indexes,
@@ -318,7 +317,7 @@ uv sync --extra rerank --extra eval
 systemd-run --user --scope -p MemoryMax=2G -p MemorySwapMax=0 uv run pytest   # 136 tests, no network, no model downloads
 ```
 
-Source layout: `src/docgraph/` (`config`, `llm`, `embeddings`, `ingest/`, `store`, `graph`, `retrieval`,
+Source layout: `src/sourcebound/` (`config`, `llm`, `embeddings`, `ingest/`, `store`, `graph`, `retrieval`,
 `rerank`, `answer`, `agent`, `citations`, `api`, `cli`, `static/index.html`), `tests/`, `eval/`.
 
 MIT licensed, see [LICENSE](LICENSE).

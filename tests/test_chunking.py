@@ -1,5 +1,5 @@
-from docgraph.ingest.chunking import Block, chunk_blocks, overlap_tail, split_long
-from docgraph.ingest.loaders import parse_markdown
+from sourcebound.ingest.chunking import Block, chunk_blocks, overlap_tail, split_long
+from sourcebound.ingest.loaders import parse_markdown
 
 
 def para(n: int, word: str = "alpha") -> str:

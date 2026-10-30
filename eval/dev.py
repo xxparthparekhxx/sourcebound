@@ -1,7 +1,7 @@
 """Choose two heuristics on the dev papers (disjoint from the evaluation papers).
 
-    docgraph eval dev templates     # which hypothesis template openjev-flash should rerank with
-    docgraph eval dev gate          # where the "nothing relevant" vector-similarity threshold should sit
+    sourcebound eval dev templates     # which hypothesis template openjev-flash should rerank with
+    sourcebound eval dev gate          # where the "nothing relevant" vector-similarity threshold should sit
 """
 
 from __future__ import annotations
@@ -14,9 +14,9 @@ from common import (
     DEFAULT_DATA, DEFAULT_WORK, RESULTS, ChunkText, Evidence, environment, load_questions, question_metrics, write_json,
 )
 
-from docgraph.config import load_config
-from docgraph.ingest.pipeline import ingest_path
-from docgraph.runtime import Runtime
+from sourcebound.config import load_config
+from sourcebound.ingest.pipeline import ingest_path
+from sourcebound.runtime import Runtime
 
 TEMPLATES = {
     "answers-explicitly": 'The passage answers the question "{question}": it states the answer explicitly.',

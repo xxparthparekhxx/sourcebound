@@ -19,7 +19,7 @@ import httpx
 from .config import EndpointConfig
 from .textutil import ThinkFilter, strip_think
 
-log = logging.getLogger("docgraph.llm")
+log = logging.getLogger("sourcebound.llm")
 
 RETRYABLE_STATUS = frozenset({408, 429}) | frozenset(range(500, 600))
 

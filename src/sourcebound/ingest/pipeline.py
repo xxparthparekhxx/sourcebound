@@ -16,7 +16,7 @@ from .chunking import chunk_blocks
 from .loaders import UnsupportedFormat, detect_format, load_file
 from .ocr import make_ocr
 
-log = logging.getLogger("docgraph.ingest")
+log = logging.getLogger("sourcebound.ingest")
 
 
 @dataclass

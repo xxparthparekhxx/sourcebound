@@ -20,9 +20,9 @@ def _err(msg: str) -> None:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(prog="docgraph", description="Answer questions over your documents, with cited sources.")
-    p.add_argument("--config", help="path to a TOML config file (default: ./docgraph.toml, then ~/.config/docgraph/config.toml)")
-    p.add_argument("--version", action="version", version=f"docgraph {__version__}")
+    p = argparse.ArgumentParser(prog="sourcebound", description="Answer questions over your documents, with cited sources.")
+    p.add_argument("--config", help="path to a TOML config file (default: ./sourcebound.toml, then ~/.config/sourcebound/config.toml)")
+    p.add_argument("--version", action="version", version=f"sourcebound {__version__}")
     p.add_argument("-v", "--verbose", action="store_true", help="log warnings from the chat client and ingest")
     sub = p.add_subparsers(dest="cmd", required=True)
 
@@ -108,7 +108,7 @@ def cmd_ask(cfg: Config, a) -> int:
     rt = Runtime(cfg)
     try:
         if rt.index.count("chunks") == 0:
-            _err("The index is empty. Run `docgraph ingest <path>` first.")
+            _err("The index is empty. Run `sourcebound ingest <path>` first.")
             return 1
         if a.json:
             ans = rt.answerer.ask(a.question, mode=a.mode, **overrides)
@@ -219,7 +219,7 @@ def cmd_eval(cfg: Config, a, config_path: str | None) -> int:
     root = Path(__file__).resolve().parents[2] / "eval"
     script = root / f"{a.script}.py"
     if not script.is_file():
-        _err(f"eval scripts not found at {root}. `docgraph eval` works from a source checkout of the repository.")
+        _err(f"eval scripts not found at {root}. `sourcebound eval` works from a source checkout of the repository.")
         return 1
     sys.path.insert(0, str(root))
     argv = [str(script), *a.args]
@@ -252,7 +252,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     except Exception as e:  # noqa: BLE001 - a CLI should print a message, not a traceback
         from .store import EmbeddingMismatch
 
-        if isinstance(e, (EmbeddingMismatch, FileNotFoundError)) or type(e).__module__.startswith("docgraph"):
+        if isinstance(e, (EmbeddingMismatch, FileNotFoundError)) or type(e).__module__.startswith("sourcebound"):
             _err(f"error: {e}")
             return 1
         raise

@@ -1,8 +1,8 @@
 """Retrieval ablation on Qasper: recall@5, recall@10 and MRR against gold evidence paragraphs.
 
-    docgraph eval prepare
-    docgraph eval retrieval --build --graph          # index the corpus; --graph runs LLM entity extraction
-    docgraph eval retrieval --tag main               # run every setting, both scopes
+    sourcebound eval prepare
+    sourcebound eval retrieval --build --graph          # index the corpus; --graph runs LLM entity extraction
+    sourcebound eval retrieval --tag main               # run every setting, both scopes
 
 Scopes:
   paper   retrieval is restricted to the paper the question was written about (Qasper's own protocol)
@@ -25,9 +25,9 @@ from common import (
     load_questions, question_metrics, write_json,
 )
 
-from docgraph.config import ConfigError, load_config
-from docgraph.ingest.pipeline import ingest_path
-from docgraph.runtime import Runtime
+from sourcebound.config import ConfigError, load_config
+from sourcebound.ingest.pipeline import ingest_path
+from sourcebound.runtime import Runtime
 
 # Qasper replaces citations, formulas and figure/table references with these tokens; models extract
 # them as "entities" even when told not to. They are removed from the graph before it is used.
@@ -79,7 +79,7 @@ def build_index(rt: Runtime, data: Path, docs: str, graph: bool, workers: int) -
             print(f"  graph: {done}/{stats.chunks} chunks, {stats.entities} entities, {stats.relations} relations, "
                   f"{stats.failed} invalid, {stats.errors} errors ({time.time() - t0:.0f}s)", flush=True)
 
-    from docgraph.graph import extract_graph
+    from sourcebound.graph import extract_graph
 
     rep = ingest_path(rt.index, data / docs, rt.cfg, rt.client, graph=False, progress=prog)
     out = {"ingested": rep.count("ingested"), "unchanged": rep.count("unchanged"), "failed": rep.count("failed"),

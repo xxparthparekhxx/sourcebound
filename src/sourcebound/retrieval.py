@@ -1,6 +1,6 @@
 """Hybrid retrieval: vector (+MMR), BM25, graph expansion, RRF fusion, optional rerank.
 
-Every stage can be switched on or off through :class:`~docgraph.config.RetrievalConfig`
+Every stage can be switched on or off through :class:`~sourcebound.config.RetrievalConfig`
 (or per call), which is what the ablation in ``eval/`` does.
 """
 

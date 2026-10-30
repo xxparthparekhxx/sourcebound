@@ -2,12 +2,12 @@ import json
 
 import pytest
 
-from docgraph.config import Config, EndpointConfig
-from docgraph.graph import graph_candidates, parse_extraction
-from docgraph.ingest.pipeline import ingest_path
-from docgraph.llm import ChatClient
-from docgraph.store import EmbeddingMismatch, Index
-from docgraph.textutil import content_terms
+from sourcebound.config import Config, EndpointConfig
+from sourcebound.graph import graph_candidates, parse_extraction
+from sourcebound.ingest.pipeline import ingest_path
+from sourcebound.llm import ChatClient
+from sourcebound.store import EmbeddingMismatch, Index
+from sourcebound.textutil import content_terms
 from fakes import FakeEmbedder, Reply
 
 

@@ -1,12 +1,12 @@
 
 import pytest
 
-from docgraph.answer import Answerer
-from docgraph.config import Config, EndpointConfig
-from docgraph.ingest.pipeline import ingest_path
-from docgraph.llm import ChatClient, PromptTooLong, estimate_tokens
-from docgraph.retrieval import Retriever
-from docgraph.store import Index
+from sourcebound.answer import Answerer
+from sourcebound.config import Config, EndpointConfig
+from sourcebound.ingest.pipeline import ingest_path
+from sourcebound.llm import ChatClient, PromptTooLong, estimate_tokens
+from sourcebound.retrieval import Retriever
+from sourcebound.store import Index
 from fakes import Reply
 
 DOCS = {

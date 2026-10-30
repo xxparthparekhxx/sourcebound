@@ -4,11 +4,11 @@ import pytest
 from fastapi import HTTPException
 from fastapi.testclient import TestClient
 
-from docgraph.api import create_app
-from docgraph.config import Config, EndpointConfig
-from docgraph.ingest.pipeline import ingest_path
-from docgraph.llm import ChatClient
-from docgraph.runtime import Runtime
+from sourcebound.api import create_app
+from sourcebound.config import Config, EndpointConfig
+from sourcebound.ingest.pipeline import ingest_path
+from sourcebound.llm import ChatClient
+from sourcebound.runtime import Runtime
 from fakes import Reply
 
 DOC = "# Cats\n\n## Sleep\n\nCats sleep for up to sixteen hours every day, mostly in sunny spots.\n\n## Diet\n\nCats are obligate carnivores and eat meat and fish.\n"
@@ -96,7 +96,7 @@ def test_ask_validates_input_and_reports_an_empty_index(served, tmp_path, embedd
     rt2 = Runtime(Config(data_dir=tmp_path / "empty"), embedder=embedder, client=rt.client)
     with TestClient(create_app(runtime=rt2)) as tc2:
         r = tc2.post("/ask", json={"question": "anything"})
-        assert parse_sse(r.text) == [("error", {"message": "The index is empty. Run `docgraph ingest <path>` first."})]
+        assert parse_sse(r.text) == [("error", {"message": "The index is empty. Run `sourcebound ingest <path>` first."})]
     rt2.close()
 
 

@@ -1,11 +1,11 @@
 import numpy as np
 import pytest
 
-from docgraph.config import Config, EndpointConfig
-from docgraph.ingest.pipeline import ingest_path
-from docgraph.llm import ChatClient
-from docgraph.retrieval import Retriever, mmr, rrf, term_overlap
-from docgraph.store import Index
+from sourcebound.config import Config, EndpointConfig
+from sourcebound.ingest.pipeline import ingest_path
+from sourcebound.llm import ChatClient
+from sourcebound.retrieval import Retriever, mmr, rrf, term_overlap
+from sourcebound.store import Index
 from fakes import Reply
 
 import json

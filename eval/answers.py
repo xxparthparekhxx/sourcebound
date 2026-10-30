@@ -1,7 +1,7 @@
 """Answer quality on a small Qasper sample: citation precision and faithfulness.
 
-    docgraph eval answers --tag ollama-bonsai2 --endpoint ollama --n 30
-    docgraph eval answers --tag openrouter-gemma --endpoint openrouter --n 30 --max-requests 80
+    sourcebound eval answers --tag ollama-bonsai2 --endpoint ollama --n 30
+    sourcebound eval answers --tag openrouter-gemma --endpoint openrouter --n 30 --max-requests 80
 
 For each sampled question, retrieval is restricted to the paper the question was written about, the
 assistant answers, and then:
@@ -30,10 +30,10 @@ from common import (
     DEFAULT_DATA, DEFAULT_WORK, RESULTS, ChunkText, Evidence, bootstrap_ci, environment, load_questions, sample, write_json,
 )
 
-from docgraph.config import ConfigError, load_config
-from docgraph.llm import ChatError
-from docgraph.rerank import FlashScorer, split_sentences
-from docgraph.runtime import Runtime
+from sourcebound.config import ConfigError, load_config
+from sourcebound.llm import ChatError
+from sourcebound.rerank import FlashScorer, split_sentences
+from sourcebound.runtime import Runtime
 
 _MARK = re.compile(r"\[(\d+(?:\s*[,;-]\s*\d+)*)\]")
 
