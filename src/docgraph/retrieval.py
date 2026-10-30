@@ -81,6 +81,7 @@ class RetrievalResult:
     relevant: bool
     reason: str
     stages: dict[str, int] = field(default_factory=dict)  # candidates contributed per stage
+    best_vector: float | None = None  # highest cosine similarity the vector stage saw
 
 
 def _stem(t: str) -> str:
@@ -160,7 +161,7 @@ class Retriever:
         out = out[: o.top_k]
 
         relevant, reason = self._assess(o, terms, out, best_vec, bool(graph_hits))
-        return RetrievalResult(out, relevant, reason, {k: len(v) for k, v in rankings.items()})
+        return RetrievalResult(out, relevant, reason, {k: len(v) for k, v in rankings.items()}, best_vec)
 
     @staticmethod
     def _assess(o: RetrievalConfig, terms: list[str], passages: list[Passage], best_vec: float | None, has_graph: bool) -> tuple[bool, str]:

@@ -54,8 +54,8 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--host", default="127.0.0.1")
     s.add_argument("--port", type=int, default=8000)
 
-    s = sub.add_parser("eval", help="run the evaluation scripts in eval/ (prepare | retrieval | answers | report)", add_help=False)
-    s.add_argument("script", choices=["prepare", "retrieval", "answers", "report"])
+    s = sub.add_parser("eval", help="run the evaluation scripts in eval/ (prepare | dev | retrieval | answers | report)", add_help=False)
+    s.add_argument("script", choices=["prepare", "retrieval", "answers", "report", "dev"])
     s.add_argument("args", nargs=argparse.REMAINDER)
     return p
 
