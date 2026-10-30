@@ -28,7 +28,9 @@ def retrieval_tables(path: Path) -> list[str]:
     out = [
         f"### Retrieval ablation: `{path.name}`",
         "",
-        f"- run {m['date']}, commit `{m['git_commit']}`{' (uncommitted changes)' if m.get('git_dirty') else ''}; command: `{m['command']}`",
+        "- runs (settings merged into this file, in order):",
+        *[f"  - {x['date']}, commit `{x['git_commit']}`{' (uncommitted changes)' if x.get('git_dirty') else ''}: `{x['command']}`"
+          for x in m.get("runs", [m])],
         f"- dataset: {m['dataset']['dataset']} {m['dataset']['split']} split, {m['dataset']['papers']} papers, "
         f"{m['dataset']['questions_evaluated']} questions; {m['index_stats']['chunks']} chunks "
         f"(size {m['chunking']['chunk_size']}, overlap {m['chunking']['chunk_overlap']} characters)",
