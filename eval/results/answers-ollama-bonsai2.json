@@ -1,0 +1,1685 @@
+{
+ "meta": {
+  "date": "2026-10-30T12:40:00+00:00",
+  "git_commit": "ebba31f",
+  "git_dirty": false,
+  "python": "3.12.14",
+  "platform": "Linux-7.3.0-5-cachyos-x86_64-with-glibc2.44",
+  "command": "answers.py --tag ollama-bonsai2 --endpoint ollama --n 30 --max-requests 100",
+  "task": "answer quality (citation precision, faithfulness)",
+  "dataset": {
+   "dataset": "allenai/qasper",
+   "split": "validation",
+   "revision": "refs/convert/parquet",
+   "seed": 0,
+   "papers": 40,
+   "questions": 176,
+   "date": "2026-10-30T09:57:49+00:00",
+   "git_commit": "539879b",
+   "git_dirty": false,
+   "python": "3.12.14",
+   "platform": "Linux-7.3.0-5-cachyos-x86_64-with-glibc2.44",
+   "command": "prepare.py"
+  },
+  "sample": {
+   "n_requested": 30,
+   "seed": 1,
+   "n_asked": 30
+  },
+  "mode": "pipeline",
+  "retrieval_scope": "restricted to the question's paper",
+  "retrieval_flags": {
+   "top_k": 5
+  },
+  "chat_endpoint": {
+   "name": "ollama",
+   "model": "bonsai-2",
+   "base_url_host": "localhost:11434",
+   "options": {
+    "reasoning_effort": "none",
+    "temperature": 0.7,
+    "top_p": 0.8,
+    "top_k": 20,
+    "min_p": 0.0,
+    "presence_penalty": 1.5
+   }
+  },
+  "faithfulness_model": "xxparthparekhxx/openjev-flash",
+  "entailment_threshold": 0.5,
+  "http_requests": 28,
+  "max_requests": 100,
+  "stopped_early": null,
+  "wall_seconds": 128.1
+ },
+ "summary": {
+  "questions_asked": 30,
+  "answers_returned": 30,
+  "call_errors": 0,
+  "no_answer": 2,
+  "answered_with_citations": 24,
+  "answered_without_citations": 4,
+  "answers_with_removed_citations": 2,
+  "agent_fallbacks": 0,
+  "prompts_reported_truncated": 0,
+  "gold_evidence_in_provided_passages": {
+   "mean": 0.5667,
+   "ci95_lo": 0.4,
+   "ci95_hi": 0.7333,
+   "n": 30
+  },
+  "citation_precision_micro": {
+   "cited_passages": 46,
+   "overlapping_gold": 16,
+   "value": 0.3478
+  },
+  "citation_precision_macro": {
+   "mean": 0.4306,
+   "ci95_lo": 0.2569,
+   "ci95_hi": 0.6042,
+   "n": 24
+  },
+  "faithfulness_sentence_level": {
+   "mean": 0.963,
+   "ci95_lo": 0.9074,
+   "ci95_hi": 1.0,
+   "n": 54
+  },
+  "faithfulness_answer_level_all_cited_sentences_supported": {
+   "mean": 0.9167,
+   "ci95_lo": 0.7917,
+   "ci95_hi": 1.0,
+   "n": 24
+  },
+  "cited_sentences_scored": 54,
+  "uncited_sentences_not_scored": 22,
+  "mean_seconds_per_question": 3.69
+ },
+ "per_question": [
+  {
+   "qid": "bfc1de5fa4da2f0e301fd22aea19cf01e2bb5b31",
+   "question": "What languages do they use in their experiments?",
+   "paper_id": "2004.04721",
+   "seconds": 5.26,
+   "error": null,
+   "answer": "The authors mention using \"other languages\" for machine translation training and paraphrase generation [1], and note that their findings apply to different languages in the context of MLQA (e.g., \"very consistent across different languages, models and runs\") [5]. However, the specific names of these languages are not listed in the provided passages.",
+   "no_answer": false,
+   "mode": "pipeline",
+   "fallback": null,
+   "endpoint": "ollama",
+   "model": "bonsai-2",
+   "uncited": false,
+   "flagged": [],
+   "truncated_prompt": null,
+   "provided_ids": [
+    1367,
+    1375,
+    1371,
+    1380,
+    1385
+   ],
+   "cited_ids": [
+    1367,
+    1385
+   ],
+   "cited_hits_gold": [
+    false,
+    false
+   ],
+   "gold_in_provided": false,
+   "steps": 0,
+   "sentences": [
+    {
+     "text": "The authors mention using \"other languages\" for machine translation training and paraphrase generation [1], and note that their findings apply to different languages in the context of MLQA (e.g., \"very consistent across different languages, models and runs\") [5].",
+     "cited": [
+      1,
+      5
+     ],
+     "p_entail": 0.9538,
+     "p_contradict": 0.0197,
+     "supported": true
+    },
+    {
+     "text": "However, the specific names of these languages are not listed in the provided passages.",
+     "cited": []
+    }
+   ]
+  },
+  {
+   "qid": "b91671715ad4fad56c67c28ce6f29e180fe08595",
+   "question": "What other tasks do they test their method on?",
+   "paper_id": "1605.03481",
+   "seconds": 0.04,
+   "error": null,
+   "answer": "I could not find anything relevant to that question in the indexed documents.",
+   "no_answer": true,
+   "mode": "pipeline",
+   "fallback": null,
+   "endpoint": "",
+   "model": "",
+   "uncited": false,
+   "flagged": [],
+   "truncated_prompt": null,
+   "provided_ids": [],
+   "cited_ids": [],
+   "cited_hits_gold": [],
+   "gold_in_provided": false,
+   "steps": 0
+  },
+  {
+   "qid": "127d5ddfabec5c58832e5865cbd8ed0978c25a13",
+   "question": "What is the word-level baseline?",
+   "paper_id": "1605.03481",
+   "seconds": 1.64,
+   "error": null,
+   "answer": "The word-level baseline is an approach that uses a simple encoder where the input tweet is split into tokens along white-spaces, and the encoder essentially functions as tweet2vec but with words instead of characters. It uses a lookup table to store vectors for the 20K most common words, grouping the rest under an `UNK` token [1].",
+   "no_answer": false,
+   "mode": "pipeline",
+   "fallback": null,
+   "endpoint": "ollama",
+   "model": "bonsai-2",
+   "uncited": false,
+   "flagged": [],
+   "truncated_prompt": null,
+   "provided_ids": [
+    48,
+    51,
+    53,
+    35,
+    40
+   ],
+   "cited_ids": [
+    48
+   ],
+   "cited_hits_gold": [
+    true
+   ],
+   "gold_in_provided": true,
+   "steps": 0,
+   "sentences": [
+    {
+     "text": "The word-level baseline is an approach that uses a simple encoder where the input tweet is split into tokens along white-spaces, and the encoder essentially functions as tweet2vec but with words instead of characters.",
+     "cited": []
+    },
+    {
+     "text": "It uses a lookup table to store vectors for the 20K most common words, grouping the rest under an `UNK` token [1].",
+     "cited": [
+      1
+     ],
+     "p_entail": 0.9951,
+     "p_contradict": 0.0017,
+     "supported": true
+    }
+   ]
+  },
+  {
+   "qid": "fe2666ace293b4bfac3182db6d0c6f03ea799277",
+   "question": "Why challenges does word segmentation in Vietnamese pose?",
+   "paper_id": "1906.07662",
+   "seconds": 4.23,
+   "error": null,
+   "answer": "The provided passages do not explicitly state specific challenges that word segmentation poses in the Vietnamese language. They mention that existing studies are lacking complete reviews of approaches, datasets, and toolkits [4], and note a lack of survey on word segmentation studies specifically for Vietnamese compared to other Asian languages like Chinese [5]. However, they do not detail the technical or linguistic reasons why these challenges exist (e.g., specific grammatical structures or morphological issues).",
+   "no_answer": false,
+   "mode": "pipeline",
+   "fallback": null,
+   "endpoint": "ollama",
+   "model": "bonsai-2",
+   "uncited": false,
+   "flagged": [],
+   "truncated_prompt": null,
+   "provided_ids": [
+    717,
+    684,
+    713,
+    689,
+    687
+   ],
+   "cited_ids": [
+    689,
+    687
+   ],
+   "cited_hits_gold": [
+    false,
+    false
+   ],
+   "gold_in_provided": false,
+   "steps": 0,
+   "sentences": [
+    {
+     "text": "The provided passages do not explicitly state specific challenges that word segmentation poses in the Vietnamese language.",
+     "cited": []
+    },
+    {
+     "text": "They mention that existing studies are lacking complete reviews of approaches, datasets, and toolkits [4], and note a lack of survey on word segmentation studies specifically for Vietnamese compared to other Asian languages like Chinese [5].",
+     "cited": [
+      4,
+      5
+     ],
+     "p_entail": 0.9963,
+     "p_contradict": 0.0016,
+     "supported": true
+    },
+    {
+     "text": "However, they do not detail the technical or linguistic reasons why these challenges exist (e.g., specific grammatical structures or morphological issues).",
+     "cited": []
+    }
+   ]
+  },
+  {
+   "qid": "567dc9bad8428ea9a2658c88203a0ed0f8da0dc3",
+   "question": "What is the best model?",
+   "paper_id": "1908.05828",
+   "seconds": 1.78,
+   "error": null,
+   "answer": "Based on the provided passages, the best model is the one using fastText_Skip Gram embeddings, as it outperforms all other models according to the evaluation table [4]. Additionally, the hyper-parameters for this model (and neural network experiments in general) are set as shown in table TABREF30 [2][4], with specific tuning details such as learning rate, weight decay, batch size, and hidden size mentioned in passage [2].",
+   "no_answer": false,
+   "mode": "pipeline",
+   "fallback": null,
+   "endpoint": "ollama",
+   "model": "bonsai-2",
+   "uncited": false,
+   "flagged": [],
+   "truncated_prompt": null,
+   "provided_ids": [
+    806,
+    796,
+    782,
+    799,
+    786
+   ],
+   "cited_ids": [
+    799,
+    796
+   ],
+   "cited_hits_gold": [
+    false,
+    false
+   ],
+   "gold_in_provided": false,
+   "steps": 0,
+   "sentences": [
+    {
+     "text": "Based on the provided passages, the best model is the one using fastText_Skip Gram embeddings, as it outperforms all other models according to the evaluation table [4].",
+     "cited": [
+      4
+     ],
+     "p_entail": 0.9227,
+     "p_contradict": 0.0035,
+     "supported": true
+    },
+    {
+     "text": "Additionally, the hyper-parameters for this model (and neural network experiments in general) are set as shown in table TABREF30 [2][4], with specific tuning details such as learning rate, weight decay, batch size, and hidden size mentioned in passage [2].",
+     "cited": [
+      2,
+      4
+     ],
+     "p_entail": 0.9883,
+     "p_contradict": 0.0027,
+     "supported": true
+    }
+   ]
+  },
+  {
+   "qid": "76ed74788e3eb3321e646c48ae8bf6cdfe46dca1",
+   "question": "what linguistics features are used?",
+   "paper_id": "2002.01207",
+   "seconds": 5.58,
+   "error": null,
+   "answer": "Based on the provided passages, the following linguistic features are used:\n\n*   **Surface-level features**: These include word surface forms, stems, prefixes, and suffixes (including noun suffixes) [2]. The text mentions that \"surface level-features\" can help improve diacritization individually [1].\n*   **Morphological features**: These capture morphological patterns using stem templates [2].\n*   **Syntactic features**: The abstract notes the use of a variety of linguistic and surface-level features to recover case endings, which typically specify syntactic roles [3]. Passage [1] mentions that \"syntactic\" features are one of the broad categories used.\n*   **POS (Part-of-Speech) information**: This includes gender and number of stems, prefixes, and suffixes [2]. The future work section also discusses augmenting the model with POS tagging information [4].\n*   **Case endings (CE)**: A binary feature indicating whether a letter expects a core word diacritic or a case ending [5].\n*   **Named entities**: Included in the \"all-misc\" setup along with unigrams and bigrams [2].\n\nThe text also notes that while these broad categories (surface, syntactic, morphological) may carry over to other languages, language-specific feature engineering may be required [1][4].",
+   "no_answer": false,
+   "mode": "pipeline",
+   "fallback": null,
+   "endpoint": "ollama",
+   "model": "bonsai-2",
+   "uncited": false,
+   "flagged": [],
+   "truncated_prompt": null,
+   "provided_ids": [
+    1170,
+    1162,
+    1135,
+    1171,
+    1150
+   ],
+   "cited_ids": [
+    1162,
+    1170,
+    1135,
+    1171,
+    1150
+   ],
+   "cited_hits_gold": [
+    false,
+    false,
+    false,
+    false,
+    false
+   ],
+   "gold_in_provided": false,
+   "steps": 0,
+   "sentences": [
+    {
+     "text": "Based on the provided passages, the following linguistic features are used:",
+     "cited": []
+    },
+    {
+     "text": "*   **Surface-level features**: These include word surface forms, stems, prefixes, and suffixes (including noun suffixes) [2].",
+     "cited": [
+      2
+     ],
+     "p_entail": 0.7644,
+     "p_contradict": 0.0851,
+     "supported": true
+    },
+    {
+     "text": "The text mentions that \"surface level-features\" can help improve diacritization individually [1].",
+     "cited": [
+      1
+     ],
+     "p_entail": 0.9457,
+     "p_contradict": 0.0516,
+     "supported": true
+    },
+    {
+     "text": "*   **Morphological features**: These capture morphological patterns using stem templates [2].",
+     "cited": [
+      2
+     ],
+     "p_entail": 0.5352,
+     "p_contradict": 0.0848,
+     "supported": true
+    },
+    {
+     "text": "*   **Syntactic features**: The abstract notes the use of a variety of linguistic and surface-level features to recover case endings, which typically specify syntactic roles [3].",
+     "cited": [
+      3
+     ],
+     "p_entail": 0.7934,
+     "p_contradict": 0.1169,
+     "supported": true
+    },
+    {
+     "text": "Passage [1] mentions that \"syntactic\" features are one of the broad categories used.",
+     "cited": [
+      1
+     ],
+     "p_entail": 0.9847,
+     "p_contradict": 0.0113,
+     "supported": true
+    },
+    {
+     "text": "*   **POS (Part-of-Speech) information**: This includes gender and number of stems, prefixes, and suffixes [2].",
+     "cited": [
+      2
+     ],
+     "p_entail": 0.6281,
+     "p_contradict": 0.0939,
+     "supported": true
+    },
+    {
+     "text": "The future work section also discusses augmenting the model with POS tagging information [4].",
+     "cited": [
+      4
+     ],
+     "p_entail": 0.9931,
+     "p_contradict": 0.0031,
+     "supported": true
+    },
+    {
+     "text": "*   **Case endings (CE)**: A binary feature indicating whether a letter expects a core word diacritic or a case ending [5].",
+     "cited": [
+      5
+     ],
+     "p_entail": 0.1641,
+     "p_contradict": 0.078,
+     "supported": false
+    },
+    {
+     "text": "*   **Named entities**: Included in the \"all-misc\" setup along with unigrams and bigrams [2].",
+     "cited": [
+      2
+     ],
+     "p_entail": 0.978,
+     "p_contradict": 0.0091,
+     "supported": true
+    },
+    {
+     "text": "The text also notes that while these broad categories (surface, syntactic, morphological) may carry over to other languages, language-specific feature engineering may be required [1][4].",
+     "cited": [
+      1,
+      4
+     ],
+     "p_entail": 0.9971,
+     "p_contradict": 0.0022,
+     "supported": true
+    }
+   ]
+  },
+  {
+   "qid": "74b338d5352fe1a6fd592e38269a4c81fe79b866",
+   "question": "What cognitive features are used?",
+   "paper_id": "1701.05574",
+   "seconds": 4.85,
+   "error": null,
+   "answer": "The cognitive features used include reading time, gaze features (specifically Average Fixation Duration per Word and Largest Regression Position), and other features extracted from human eye movement patterns [2][3]. Additionally, the system considers textual features alongside these cognitive features [1][3]. The specific feature combination includes those derived from the joshi2015harnessing method [2].",
+   "no_answer": false,
+   "mode": "pipeline",
+   "fallback": null,
+   "endpoint": "ollama",
+   "model": "bonsai-2",
+   "uncited": false,
+   "flagged": [],
+   "truncated_prompt": null,
+   "provided_ids": [
+    85,
+    86,
+    60,
+    89,
+    91
+   ],
+   "cited_ids": [
+    86,
+    60,
+    85
+   ],
+   "cited_hits_gold": [
+    false,
+    false,
+    false
+   ],
+   "gold_in_provided": false,
+   "steps": 0,
+   "sentences": [
+    {
+     "text": "The cognitive features used include reading time, gaze features (specifically Average Fixation Duration per Word and Largest Regression Position), and other features extracted from human eye movement patterns [2][3].",
+     "cited": [
+      2,
+      3
+     ],
+     "p_entail": 0.7735,
+     "p_contradict": 0.0037,
+     "supported": true
+    },
+    {
+     "text": "Additionally, the system considers textual features alongside these cognitive features [1][3].",
+     "cited": [
+      1,
+      3
+     ],
+     "p_entail": 0.9345,
+     "p_contradict": 0.0122,
+     "supported": true
+    },
+    {
+     "text": "The specific feature combination includes those derived from the joshi2015harnessing method [2].",
+     "cited": [
+      2
+     ],
+     "p_entail": 0.9577,
+     "p_contradict": 0.0023,
+     "supported": true
+    }
+   ]
+  },
+  {
+   "qid": "664b3eadc12c8dde309e8bbd59e9af961a433cde",
+   "question": "Is the improvement over state-of-the-art statistically significant?",
+   "paper_id": "2004.04721",
+   "seconds": 3.65,
+   "error": null,
+   "answer": "Could not find information on whether the improvement over state-of-the-art is statistically significant in the documents. The passages mention that the gap was reduced from 4.6 points to 0.8 points, but do not provide details on statistical significance tests.",
+   "no_answer": false,
+   "mode": "pipeline",
+   "fallback": null,
+   "endpoint": "ollama",
+   "model": "bonsai-2",
+   "uncited": true,
+   "flagged": [],
+   "truncated_prompt": null,
+   "provided_ids": [
+    1396,
+    1385,
+    1383,
+    1395,
+    1391
+   ],
+   "cited_ids": [],
+   "cited_hits_gold": [],
+   "gold_in_provided": false,
+   "steps": 0,
+   "sentences": [
+    {
+     "text": "Could not find information on whether the improvement over state-of-the-art is statistically significant in the documents.",
+     "cited": []
+    },
+    {
+     "text": "The passages mention that the gap was reduced from 4.6 points to 0.8 points, but do not provide details on statistical significance tests.",
+     "cited": []
+    }
+   ]
+  },
+  {
+   "qid": "e025061e199b121f2ac8f3d9637d9bf987d65cd5",
+   "question": "What is the average length of the sentences?",
+   "paper_id": "1712.00991",
+   "seconds": 2.19,
+   "error": null,
+   "answer": "The average length of the sentences is 15.5 words [1].",
+   "no_answer": false,
+   "mode": "pipeline",
+   "fallback": null,
+   "endpoint": "ollama",
+   "model": "bonsai-2",
+   "uncited": false,
+   "flagged": [],
+   "truncated_prompt": null,
+   "provided_ids": [
+    269,
+    270,
+    285,
+    279,
+    275
+   ],
+   "cited_ids": [
+    269
+   ],
+   "cited_hits_gold": [
+    true
+   ],
+   "gold_in_provided": true,
+   "steps": 0,
+   "sentences": [
+    {
+     "text": "The average length of the sentences is 15.5 words [1].",
+     "cited": [
+      1
+     ],
+     "p_entail": 0.8305,
+     "p_contradict": 0.0706,
+     "supported": true
+    }
+   ]
+  },
+  {
+   "qid": "36ae003c7cb2a1bbfa90b89c671bc286bd3b3dfd",
+   "question": "How does dataset model character's profiles?",
+   "paper_id": "1910.08293",
+   "seconds": 5.51,
+   "error": null,
+   "answer": "The dataset models character profiles by defining Human Level Attributes (HLAs) as characteristics representative of a character's profile and identity, based on tropes collected from TV Tropes [2]. These HLAs are used to label dialogue data so that it is traceable back to both its context and associated human-like qualities [2]. Additionally, the model uses a matrix $P$ containing binary values to indicate which characters have specific HLAs in the dataset [5].",
+   "no_answer": false,
+   "mode": "pipeline",
+   "fallback": null,
+   "endpoint": "ollama",
+   "model": "bonsai-2",
+   "uncited": false,
+   "flagged": [],
+   "truncated_prompt": null,
+   "provided_ids": [
+    978,
+    950,
+    997,
+    948,
+    962
+   ],
+   "cited_ids": [
+    950,
+    962
+   ],
+   "cited_hits_gold": [
+    false,
+    false
+   ],
+   "gold_in_provided": false,
+   "steps": 0,
+   "sentences": [
+    {
+     "text": "The dataset models character profiles by defining Human Level Attributes (HLAs) as characteristics representative of a character's profile and identity, based on tropes collected from TV Tropes [2].",
+     "cited": [
+      2
+     ],
+     "p_entail": 0.9399,
+     "p_contradict": 0.0082,
+     "supported": true
+    },
+    {
+     "text": "These HLAs are used to label dialogue data so that it is traceable back to both its context and associated human-like qualities [2].",
+     "cited": [
+      2
+     ],
+     "p_entail": 0.976,
+     "p_contradict": 0.004,
+     "supported": true
+    },
+    {
+     "text": "Additionally, the model uses a matrix $P$ containing binary values to indicate which characters have specific HLAs in the dataset [5].",
+     "cited": [
+      5
+     ],
+     "p_entail": 0.9863,
+     "p_contradict": 0.0031,
+     "supported": true
+    }
+   ]
+  },
+  {
+   "qid": "fff5c24dca92bc7d5435a2600e6764f039551787",
+   "question": "How was the StackExchange dataset collected?",
+   "paper_id": "1810.05241",
+   "seconds": 2.97,
+   "error": null,
+   "answer": "The StackExchange dataset was built based on public StackExchange data, using questions with titles as the source and user-assigned tags as the target keyphrases [1].",
+   "no_answer": false,
+   "mode": "pipeline",
+   "fallback": null,
+   "endpoint": "ollama",
+   "model": "bonsai-2",
+   "uncited": false,
+   "flagged": [],
+   "truncated_prompt": null,
+   "provided_ids": [
+    524,
+    522,
+    536,
+    521,
+    498
+   ],
+   "cited_ids": [
+    524
+   ],
+   "cited_hits_gold": [
+    true
+   ],
+   "gold_in_provided": true,
+   "steps": 0,
+   "sentences": [
+    {
+     "text": "The StackExchange dataset was built based on public StackExchange data, using questions with titles as the source and user-assigned tags as the target keyphrases [1].",
+     "cited": [
+      1
+     ],
+     "p_entail": 0.9566,
+     "p_contradict": 0.0107,
+     "supported": true
+    }
+   ]
+  },
+  {
+   "qid": "bb2de20ee5937da7e3e6230e942bec7b6e8f61ee",
+   "question": "What is the source of their dataset?",
+   "paper_id": "1908.05828",
+   "seconds": 4.85,
+   "error": null,
+   "answer": "The dataset contains sentences collected from daily newspapers of the year 2015-2016 [2]. Additionally, the POS-tagged Nepali National Corpus was used to extract unique words for training a BiLSTM model [3]. The original dataset follows the standard CoNLL-2003 IOB format and was prepared by ILPRL Lab, KU and KEIV Technologies [1].",
+   "no_answer": false,
+   "mode": "pipeline",
+   "fallback": null,
+   "endpoint": "ollama",
+   "model": "bonsai-2",
+   "uncited": false,
+   "flagged": [],
+   "truncated_prompt": null,
+   "provided_ids": [
+    791,
+    789,
+    790,
+    806,
+    794
+   ],
+   "cited_ids": [
+    789,
+    790,
+    791
+   ],
+   "cited_hits_gold": [
+    true,
+    false,
+    false
+   ],
+   "gold_in_provided": true,
+   "steps": 0,
+   "sentences": [
+    {
+     "text": "The dataset contains sentences collected from daily newspapers of the year 2015-2016 [2].",
+     "cited": [
+      2
+     ],
+     "p_entail": 0.9819,
+     "p_contradict": 0.0088,
+     "supported": true
+    },
+    {
+     "text": "Additionally, the POS-tagged Nepali National Corpus was used to extract unique words for training a BiLSTM model [3].",
+     "cited": [
+      3
+     ],
+     "p_entail": 0.9804,
+     "p_contradict": 0.0024,
+     "supported": true
+    },
+    {
+     "text": "The original dataset follows the standard CoNLL-2003 IOB format and was prepared by ILPRL Lab, KU and KEIV Technologies [1].",
+     "cited": [
+      1
+     ],
+     "p_entail": 0.872,
+     "p_contradict": 0.0126,
+     "supported": true
+    }
+   ]
+  },
+  {
+   "qid": "4c18081ae3b676cc7831403d11bc070c10120f8e",
+   "question": "What clustering algorithms were used?",
+   "paper_id": "1712.00991",
+   "seconds": 1.78,
+   "error": null,
+   "answer": "CLUTO and Carrot2 Lingo [1].",
+   "no_answer": false,
+   "mode": "pipeline",
+   "fallback": null,
+   "endpoint": "ollama",
+   "model": "bonsai-2",
+   "uncited": false,
+   "flagged": [],
+   "truncated_prompt": null,
+   "provided_ids": [
+    275,
+    276,
+    289,
+    287,
+    285
+   ],
+   "cited_ids": [
+    275
+   ],
+   "cited_hits_gold": [
+    true
+   ],
+   "gold_in_provided": true,
+   "steps": 0,
+   "sentences": [
+    {
+     "text": "CLUTO and Carrot2 Lingo [1].",
+     "cited": [
+      1
+     ],
+     "p_entail": 0.9503,
+     "p_contradict": 0.0159,
+     "supported": true
+    }
+   ]
+  },
+  {
+   "qid": "8e44c02c2d9fa56fb74ace35ee70a5add50b52ae",
+   "question": "Does the corpus contain only English documents?",
+   "paper_id": "1704.04452",
+   "seconds": 3.38,
+   "error": null,
+   "answer": "I could not find information regarding the language of the documents in the provided passages. The text mentions that the corpus contains documents from a variety of genres and categories, but it does not specify whether they are exclusively in English or include other languages [1].",
+   "no_answer": false,
+   "mode": "pipeline",
+   "fallback": null,
+   "endpoint": "ollama",
+   "model": "bonsai-2",
+   "uncited": false,
+   "flagged": [],
+   "truncated_prompt": null,
+   "provided_ids": [
+    126,
+    129,
+    103,
+    104,
+    96
+   ],
+   "cited_ids": [
+    126
+   ],
+   "cited_hits_gold": [
+    false
+   ],
+   "gold_in_provided": false,
+   "steps": 0,
+   "sentences": [
+    {
+     "text": "I could not find information regarding the language of the documents in the provided passages.",
+     "cited": []
+    },
+    {
+     "text": "The text mentions that the corpus contains documents from a variety of genres and categories, but it does not specify whether they are exclusively in English or include other languages [1].",
+     "cited": [
+      1
+     ],
+     "p_entail": 0.8234,
+     "p_contradict": 0.0932,
+     "supported": true
+    }
+   ]
+  },
+  {
+   "qid": "701571680724c05ca70c11bc267fb1160ea1460a",
+   "question": "Does the method achieve sota performance on this dataset?",
+   "paper_id": "1806.11432",
+   "seconds": 4.59,
+   "error": null,
+   "answer": "No, the documents do not state that the method achieved state-of-the-art (sota) performance. The text notes \"an unideal performance on this task\" in section 4 and mentions that findings are \"well in-line with those presented by Radford et al.\" regarding training word embeddings, but does not claim sota status [2].",
+   "no_answer": false,
+   "mode": "pipeline",
+   "fallback": null,
+   "endpoint": "ollama",
+   "model": "bonsai-2",
+   "uncited": false,
+   "flagged": [
+    9
+   ],
+   "truncated_prompt": null,
+   "provided_ids": [
+    386,
+    392,
+    394,
+    388,
+    398
+   ],
+   "cited_ids": [
+    392
+   ],
+   "cited_hits_gold": [
+    false
+   ],
+   "gold_in_provided": true,
+   "steps": 0,
+   "sentences": [
+    {
+     "text": "No, the documents do not state that the method achieved state-of-the-art (sota) performance.",
+     "cited": []
+    },
+    {
+     "text": "The text notes \"an unideal performance on this task\" in section 4 and mentions that findings are \"well in-line with those presented by Radford et al.\" regarding training word embeddings, but does not claim sota status [2].",
+     "cited": [
+      2
+     ],
+     "p_entail": 0.0075,
+     "p_contradict": 0.0085,
+     "supported": false
+    }
+   ]
+  },
+  {
+   "qid": "de830c534c23f103288c198eb19174c76bfd38a1",
+   "question": "Which words are used differently across ArXiv?",
+   "paper_id": "1709.10367",
+   "seconds": 6.11,
+   "error": null,
+   "answer": "The passage states that the method uncovers which words have the strongest shift in usage across different sections of ArXiv papers [3]. It also illustrates this by showing how the word \"intelligence\" is used differently, with similar words varying by field (e.g., \"artificial\" and \"ai\" in computer science versus \"abilities\" and \"consciousness\" in finance) [1]. Additionally, the introduction notes that the method demonstrates how sefe discovers which words are used most differently across ArXiv disciplines [4].",
+   "no_answer": false,
+   "mode": "pipeline",
+   "fallback": null,
+   "endpoint": "ollama",
+   "model": "bonsai-2",
+   "uncited": false,
+   "flagged": [],
+   "truncated_prompt": null,
+   "provided_ids": [
+    233,
+    258,
+    254,
+    237,
+    230
+   ],
+   "cited_ids": [
+    254,
+    233,
+    237
+   ],
+   "cited_hits_gold": [
+    false,
+    true,
+    false
+   ],
+   "gold_in_provided": true,
+   "steps": 0,
+   "sentences": [
+    {
+     "text": "The passage states that the method uncovers which words have the strongest shift in usage across different sections of ArXiv papers [3].",
+     "cited": [
+      3
+     ],
+     "p_entail": 0.7115,
+     "p_contradict": 0.2388,
+     "supported": true
+    },
+    {
+     "text": "It also illustrates this by showing how the word \"intelligence\" is used differently, with similar words varying by field (e.g., \"artificial\" and \"ai\" in computer science versus \"abilities\" and \"consciousness\" in finance) [1].",
+     "cited": [
+      1
+     ],
+     "p_entail": 0.9734,
+     "p_contradict": 0.0055,
+     "supported": true
+    },
+    {
+     "text": "Additionally, the introduction notes that the method demonstrates how sefe discovers which words are used most differently across ArXiv disciplines [4].",
+     "cited": [
+      4
+     ],
+     "p_entail": 0.9531,
+     "p_contradict": 0.0195,
+     "supported": true
+    }
+   ]
+  },
+  {
+   "qid": "fb3d30d59ed49e87f63d3735b876d45c4c6b8939",
+   "question": "What evaluation metrics are looked at for classification tasks?",
+   "paper_id": "1712.00991",
+   "seconds": 4.36,
+   "error": null,
+   "answer": "The documents do not contain specific information about the evaluation metrics used for classification tasks. While they mention that accuracy is defined as a fraction [4] and refer to tables showing results of 5-fold cross-validation experiments [3], [4], and comparative performance, the text does not explicitly list or describe the evaluation metrics themselves beyond mentioning \"accuracy\".",
+   "no_answer": false,
+   "mode": "pipeline",
+   "fallback": null,
+   "endpoint": "ollama",
+   "model": "bonsai-2",
+   "uncited": false,
+   "flagged": [
+    9
+   ],
+   "truncated_prompt": null,
+   "provided_ids": [
+    287,
+    278,
+    289,
+    273,
+    265
+   ],
+   "cited_ids": [
+    273,
+    289
+   ],
+   "cited_hits_gold": [
+    true,
+    true
+   ],
+   "gold_in_provided": true,
+   "steps": 0,
+   "sentences": [
+    {
+     "text": "The documents do not contain specific information about the evaluation metrics used for classification tasks.",
+     "cited": []
+    },
+    {
+     "text": "While they mention that accuracy is defined as a fraction [4] and refer to tables showing results of 5-fold cross-validation experiments [3], [4], and comparative performance, the text does not explicitly list or describe the evaluation metrics themselves beyond mentioning \"accuracy\".",
+     "cited": [
+      4,
+      3
+     ],
+     "p_entail": 0.6573,
+     "p_contradict": 0.1485,
+     "supported": true
+    }
+   ]
+  },
+  {
+   "qid": "2236386729105f5cf42f73cc055ce3acdea2d452",
+   "question": "What language are the reviews in?",
+   "paper_id": "1810.12196",
+   "seconds": 3.1,
+   "error": null,
+   "answer": "I could not find the answer in the provided documents. The passages mention that the reviews come from TripAdvisor [3] and describe their content and structure, but they do not specify the language used for the reviews.",
+   "no_answer": false,
+   "mode": "pipeline",
+   "fallback": null,
+   "endpoint": "ollama",
+   "model": "bonsai-2",
+   "uncited": false,
+   "flagged": [],
+   "truncated_prompt": null,
+   "provided_ids": [
+    556,
+    543,
+    553,
+    538,
+    552
+   ],
+   "cited_ids": [
+    553
+   ],
+   "cited_hits_gold": [
+    false
+   ],
+   "gold_in_provided": false,
+   "steps": 0,
+   "sentences": [
+    {
+     "text": "I could not find the answer in the provided documents.",
+     "cited": []
+    },
+    {
+     "text": "The passages mention that the reviews come from TripAdvisor [3] and describe their content and structure, but they do not specify the language used for the reviews.",
+     "cited": [
+      3
+     ],
+     "p_entail": 0.7595,
+     "p_contradict": 0.1712,
+     "supported": true
+    }
+   ]
+  },
+  {
+   "qid": "d3ca5f1814860a88ff30761fec3d860d35e39167",
+   "question": "Which approaches have been applied to solve word segmentation in Vietnamese?",
+   "paper_id": "1906.07662",
+   "seconds": 6.42,
+   "error": null,
+   "answer": "Based on the provided passages, the following approaches have been applied to solve word segmentation in Vietnamese:\n\n*   **Lexicon-based approaches** [2]\n*   **Machine learning-based methods**, specifically:\n    *   Support Vector Machine (SVM) [2], [4], [5]\n    *   Conditional Random Fields (CRF) [2], [4], [5]\n*   **Neural Network approach** [4], [5]\n*   **Weighted Finite State Transducer (WFST)** [4], [5]",
+   "no_answer": false,
+   "mode": "pipeline",
+   "fallback": null,
+   "endpoint": "ollama",
+   "model": "bonsai-2",
+   "uncited": false,
+   "flagged": [],
+   "truncated_prompt": null,
+   "provided_ids": [
+    684,
+    687,
+    689,
+    688,
+    700
+   ],
+   "cited_ids": [
+    687,
+    688,
+    700
+   ],
+   "cited_hits_gold": [
+    false,
+    true,
+    false
+   ],
+   "gold_in_provided": true,
+   "steps": 0,
+   "sentences": [
+    {
+     "text": "Based on the provided passages, the following approaches have been applied to solve word segmentation in Vietnamese:",
+     "cited": []
+    },
+    {
+     "text": "*   **Lexicon-based approaches** [2]",
+     "cited": [
+      2
+     ],
+     "p_entail": 0.6255,
+     "p_contradict": 0.1277,
+     "supported": true
+    },
+    {
+     "text": "*   **Machine learning-based methods**, specifically:",
+     "cited": []
+    },
+    {
+     "text": "*   Support Vector Machine (SVM) [2], [4], [5]",
+     "cited": [
+      2,
+      4,
+      5
+     ],
+     "p_entail": 0.8838,
+     "p_contradict": 0.0446,
+     "supported": true
+    },
+    {
+     "text": "*   Conditional Random Fields (CRF) [2], [4], [5]",
+     "cited": [
+      2,
+      4,
+      5
+     ],
+     "p_entail": 0.9226,
+     "p_contradict": 0.0365,
+     "supported": true
+    },
+    {
+     "text": "*   **Neural Network approach** [4], [5]",
+     "cited": [
+      4,
+      5
+     ],
+     "p_entail": 0.908,
+     "p_contradict": 0.031,
+     "supported": true
+    },
+    {
+     "text": "*   **Weighted Finite State Transducer (WFST)** [4], [5]",
+     "cited": [
+      4,
+      5
+     ],
+     "p_entail": 0.9524,
+     "p_contradict": 0.0175,
+     "supported": true
+    }
+   ]
+  },
+  {
+   "qid": "72ce05546c81ada05885026470f4c8c218805055",
+   "question": "Which natural language(s) are studied in this paper?",
+   "paper_id": "2003.11563",
+   "seconds": 3.19,
+   "error": null,
+   "answer": "I could not find the specific natural languages studied in this paper within the provided documents. The passages mention datasets and tasks involving English words and stopwords, but do not explicitly state which natural languages are being studied or tested.",
+   "no_answer": false,
+   "mode": "pipeline",
+   "fallback": null,
+   "endpoint": "ollama",
+   "model": "bonsai-2",
+   "uncited": true,
+   "flagged": [],
+   "truncated_prompt": null,
+   "provided_ids": [
+    1334,
+    1355,
+    1349,
+    1325,
+    1341
+   ],
+   "cited_ids": [],
+   "cited_hits_gold": [],
+   "gold_in_provided": false,
+   "steps": 0,
+   "sentences": [
+    {
+     "text": "I could not find the specific natural languages studied in this paper within the provided documents.",
+     "cited": []
+    },
+    {
+     "text": "The passages mention datasets and tasks involving English words and stopwords, but do not explicitly state which natural languages are being studied or tested.",
+     "cited": []
+    }
+   ]
+  },
+  {
+   "qid": "b3307d5b68c57a074c483636affee41054be06d1",
+   "question": "What are examples of these artifacts?",
+   "paper_id": "2004.04721",
+   "seconds": 5.41,
+   "error": null,
+   "answer": "Based on the provided passages, here are examples of artifacts mentioned:\n\n*   **Translation artifacts:** Unintended effects of translation that impact final evaluation [1].\n*   **Spurious patterns in NLI datasets:** Such as cues on lexical choice and sentence length that allow hypotheses-only baselines to perform better than chance [2]; high lexical overlap leading models to predict entailment [2].\n*   **Annotation artifacts:** Issues found in tasks like QA where models are susceptible to specific patterns [2].",
+   "no_answer": false,
+   "mode": "pipeline",
+   "fallback": null,
+   "endpoint": "ollama",
+   "model": "bonsai-2",
+   "uncited": false,
+   "flagged": [],
+   "truncated_prompt": null,
+   "provided_ids": [
+    1392,
+    1365,
+    1371,
+    1387,
+    1375
+   ],
+   "cited_ids": [
+    1392,
+    1365
+   ],
+   "cited_hits_gold": [
+    false,
+    true
+   ],
+   "gold_in_provided": true,
+   "steps": 0,
+   "sentences": [
+    {
+     "text": "Based on the provided passages, here are examples of artifacts mentioned:",
+     "cited": []
+    },
+    {
+     "text": "*   **Translation artifacts:** Unintended effects of translation that impact final evaluation [1].",
+     "cited": [
+      1
+     ],
+     "p_entail": 0.8889,
+     "p_contradict": 0.0297,
+     "supported": true
+    },
+    {
+     "text": "*   **Spurious patterns in NLI datasets:** Such as cues on lexical choice and sentence length that allow hypotheses-only baselines to perform better than chance [2]; high lexical overlap leading models to predict entailment [2].",
+     "cited": [
+      2
+     ],
+     "p_entail": 0.9259,
+     "p_contradict": 0.0127,
+     "supported": true
+    },
+    {
+     "text": "*   **Annotation artifacts:** Issues found in tasks like QA where models are susceptible to specific patterns [2].",
+     "cited": [
+      2
+     ],
+     "p_entail": 0.7416,
+     "p_contradict": 0.0205,
+     "supported": true
+    }
+   ]
+  },
+  {
+   "qid": "db72a78a7102b5f0e75a4d9e1a06a3c2e7aabb21",
+   "question": "what are the previous state of the art?",
+   "paper_id": "2002.01207",
+   "seconds": 0.02,
+   "error": null,
+   "answer": "I could not find anything relevant to that question in the indexed documents.",
+   "no_answer": true,
+   "mode": "pipeline",
+   "fallback": null,
+   "endpoint": "",
+   "model": "",
+   "uncited": false,
+   "flagged": [],
+   "truncated_prompt": null,
+   "provided_ids": [],
+   "cited_ids": [],
+   "cited_hits_gold": [],
+   "gold_in_provided": false,
+   "steps": 0
+  },
+  {
+   "qid": "b65a83a24fc66728451bb063cf6ec50134c8bfb0",
+   "question": "How are sentences selected from the summary graph?",
+   "paper_id": "1706.01678",
+   "seconds": 3.28,
+   "error": null,
+   "answer": "I could not find the answer in the documents. The passages describe how sentences are *selected* to create a sub-graph for summary extraction, but they do not describe how sentences are selected *from* an already existing summary graph.",
+   "no_answer": false,
+   "mode": "pipeline",
+   "fallback": null,
+   "endpoint": "ollama",
+   "model": "bonsai-2",
+   "uncited": true,
+   "flagged": [],
+   "truncated_prompt": null,
+   "provided_ids": [
+    177,
+    188,
+    207,
+    193,
+    182
+   ],
+   "cited_ids": [],
+   "cited_hits_gold": [],
+   "gold_in_provided": false,
+   "steps": 0,
+   "sentences": [
+    {
+     "text": "I could not find the answer in the documents.",
+     "cited": []
+    },
+    {
+     "text": "The passages describe how sentences are *selected* to create a sub-graph for summary extraction, but they do not describe how sentences are selected *from* an already existing summary graph.",
+     "cited": []
+    }
+   ]
+  },
+  {
+   "qid": "e9cfbfdf30e48cffdeca58d4ac6fdd66a8b27d7a",
+   "question": "How were crowd workers instructed to identify important elements in large document collections?",
+   "paper_id": "1704.04452",
+   "seconds": 2.75,
+   "error": null,
+   "answer": "Crowd workers were instructed to work with only a description of the document cluster's topic along with the propositions; they were not shown the actual documents [4].",
+   "no_answer": false,
+   "mode": "pipeline",
+   "fallback": null,
+   "endpoint": "ollama",
+   "model": "bonsai-2",
+   "uncited": false,
+   "flagged": [],
+   "truncated_prompt": null,
+   "provided_ids": [
+    95,
+    119,
+    108,
+    106,
+    105
+   ],
+   "cited_ids": [
+    106
+   ],
+   "cited_hits_gold": [
+    true
+   ],
+   "gold_in_provided": true,
+   "steps": 0,
+   "sentences": [
+    {
+     "text": "Crowd workers were instructed to work with only a description of the document cluster's topic along with the propositions; they were not shown the actual documents [4].",
+     "cited": [
+      4
+     ],
+     "p_entail": 0.9601,
+     "p_contradict": 0.0047,
+     "supported": true
+    }
+   ]
+  },
+  {
+   "qid": "a1b3e2107302c5a993baafbe177684ae88d6f505",
+   "question": "What is the size of the dataset?",
+   "paper_id": "1908.05828",
+   "seconds": 4.11,
+   "error": null,
+   "answer": "I could not find the answer in the documents and say what is missing. The provided passages describe the composition of the training, development, and test sets (64%, 16%, and 20% respectively) [1], but they do not state the total number of sentences or words in the dataset.",
+   "no_answer": false,
+   "mode": "pipeline",
+   "fallback": null,
+   "endpoint": "ollama",
+   "model": "bonsai-2",
+   "uncited": false,
+   "flagged": [],
+   "truncated_prompt": null,
+   "provided_ids": [
+    791,
+    796,
+    790,
+    789,
+    793
+   ],
+   "cited_ids": [
+    791
+   ],
+   "cited_hits_gold": [
+    true
+   ],
+   "gold_in_provided": true,
+   "steps": 0,
+   "sentences": [
+    {
+     "text": "I could not find the answer in the documents and say what is missing.",
+     "cited": []
+    },
+    {
+     "text": "The provided passages describe the composition of the training, development, and test sets (64%, 16%, and 20% respectively) [1], but they do not state the total number of sentences or words in the dataset.",
+     "cited": [
+      1
+     ],
+     "p_entail": 0.909,
+     "p_contradict": 0.0576,
+     "supported": true
+    }
+   ]
+  },
+  {
+   "qid": "18942ab8c365955da3fd8fc901dfb1a3b65c1be1",
+   "question": "Where are the hotel reviews from?",
+   "paper_id": "1810.12196",
+   "seconds": 1.78,
+   "error": null,
+   "answer": "The hotel reviews are from the TripAdvisor website [1].",
+   "no_answer": false,
+   "mode": "pipeline",
+   "fallback": null,
+   "endpoint": "ollama",
+   "model": "bonsai-2",
+   "uncited": false,
+   "flagged": [],
+   "truncated_prompt": null,
+   "provided_ids": [
+    553,
+    538,
+    543,
+    537,
+    556
+   ],
+   "cited_ids": [
+    553
+   ],
+   "cited_hits_gold": [
+    false
+   ],
+   "gold_in_provided": true,
+   "steps": 0,
+   "sentences": [
+    {
+     "text": "The hotel reviews are from the TripAdvisor website [1].",
+     "cited": [
+      1
+     ],
+     "p_entail": 0.9449,
+     "p_contradict": 0.0091,
+     "supported": true
+    }
+   ]
+  },
+  {
+   "qid": "8c48c726bb17a17d70ab29db4d65a93030dd5382",
+   "question": "How much data is needed to train the task-specific encoder?",
+   "paper_id": "1905.07791",
+   "seconds": 3.75,
+   "error": null,
+   "answer": "I could not find the answer in the documents. The passages describe the training process (e.g., using Adam optimizer, batch size of 16, and hyperparameter tuning via Vizier) but do not specify how much data was required to train the task-specific encoder.",
+   "no_answer": false,
+   "mode": "pipeline",
+   "fallback": null,
+   "endpoint": "ollama",
+   "model": "bonsai-2",
+   "uncited": true,
+   "flagged": [],
+   "truncated_prompt": null,
+   "provided_ids": [
+    621,
+    622,
+    603,
+    609,
+    623
+   ],
+   "cited_ids": [],
+   "cited_hits_gold": [],
+   "gold_in_provided": true,
+   "steps": 0,
+   "sentences": [
+    {
+     "text": "I could not find the answer in the documents.",
+     "cited": []
+    },
+    {
+     "text": "The passages describe the training process (e.g., using Adam optimizer, batch size of 16, and hyperparameter tuning via Vizier) but do not specify how much data was required to train the task-specific encoder.",
+     "cited": []
+    }
+   ]
+  },
+  {
+   "qid": "b1bc9ae9d40e7065343c12f860a461c7c730a612",
+   "question": "Which datasets are used?",
+   "paper_id": "1912.08960",
+   "seconds": 4.5,
+   "error": null,
+   "answer": "The work develops a variety of ShapeWorldICE datasets [2]. All training and test captions sampled in the work are in English [4]. Each dataset variant consists of around 200k training instances and 4,096 validation instances, plus 4,096 test instances [4]. The evaluation datasets are developed within the ShapeWorld framework [5].",
+   "no_answer": false,
+   "mode": "pipeline",
+   "fallback": null,
+   "endpoint": "ollama",
+   "model": "bonsai-2",
+   "uncited": false,
+   "flagged": [],
+   "truncated_prompt": null,
+   "provided_ids": [
+    1129,
+    1118,
+    1110,
+    1119,
+    1111
+   ],
+   "cited_ids": [
+    1118,
+    1119,
+    1111
+   ],
+   "cited_hits_gold": [
+    true,
+    false,
+    false
+   ],
+   "gold_in_provided": true,
+   "steps": 0,
+   "sentences": [
+    {
+     "text": "The work develops a variety of ShapeWorldICE datasets [2].",
+     "cited": [
+      2
+     ],
+     "p_entail": 0.9855,
+     "p_contradict": 0.003,
+     "supported": true
+    },
+    {
+     "text": "All training and test captions sampled in the work are in English [4].",
+     "cited": [
+      4
+     ],
+     "p_entail": 0.9804,
+     "p_contradict": 0.0014,
+     "supported": true
+    },
+    {
+     "text": "Each dataset variant consists of around 200k training instances and 4,096 validation instances, plus 4,096 test instances [4].",
+     "cited": [
+      4
+     ],
+     "p_entail": 0.9399,
+     "p_contradict": 0.0275,
+     "supported": true
+    },
+    {
+     "text": "The evaluation datasets are developed within the ShapeWorld framework [5].",
+     "cited": [
+      5
+     ],
+     "p_entail": 0.9912,
+     "p_contradict": 0.0013,
+     "supported": true
+    }
+   ]
+  },
+  {
+   "qid": "d3dbb5c22ef204d85707d2d24284cc77fa816b6c",
+   "question": "What other models do they compare to?",
+   "paper_id": "1809.09194",
+   "seconds": 3.95,
+   "error": null,
+   "answer": "They compare their model to R.M.-Reader + Verifier, which includes several components [2]. Additionally, the text mentions that their shared lower layer is similar to the lower layers of SAN [3] and notes that their model is a variation of SAN [3], implying they are building upon or comparing against it.",
+   "no_answer": false,
+   "mode": "pipeline",
+   "fallback": null,
+   "endpoint": "ollama",
+   "model": "bonsai-2",
+   "uncited": false,
+   "flagged": [],
+   "truncated_prompt": null,
+   "provided_ids": [
+    490,
+    489,
+    480,
+    478,
+    491
+   ],
+   "cited_ids": [
+    489,
+    480
+   ],
+   "cited_hits_gold": [
+    true,
+    false
+   ],
+   "gold_in_provided": true,
+   "steps": 0,
+   "sentences": [
+    {
+     "text": "They compare their model to R.M.-Reader + Verifier, which includes several components [2].",
+     "cited": [
+      2
+     ],
+     "p_entail": 0.9822,
+     "p_contradict": 0.0074,
+     "supported": true
+    },
+    {
+     "text": "Additionally, the text mentions that their shared lower layer is similar to the lower layers of SAN [3] and notes that their model is a variation of SAN [3], implying they are building upon or comparing against it.",
+     "cited": [
+      3
+     ],
+     "p_entail": 0.7682,
+     "p_contradict": 0.0418,
+     "supported": true
+    }
+   ]
+  },
+  {
+   "qid": "8f16dc7d7be0d284069841e456ebb2c69575b32b",
+   "question": "What baseline is used in the experiments?",
+   "paper_id": "1802.06024",
+   "seconds": 5.61,
+   "error": null,
+   "answer": "In the experiments, the baselines used are various versions of LiLi, specifically:\n\n- **Single**: A version where a single prediction model is trained for all test relations [5].\n- **Sep**: A version where past learned weights are not transferred for initialization (disabling lifelong learning) [5].\n- **F-th**: A version using a fixed prediction threshold of 0.5 instead of relation-specific thresholds [2][5].",
+   "no_answer": false,
+   "mode": "pipeline",
+   "fallback": null,
+   "endpoint": "ollama",
+   "model": "bonsai-2",
+   "uncited": false,
+   "flagged": [],
+   "truncated_prompt": null,
+   "provided_ids": [
+    338,
+    354,
+    330,
+    355,
+    353
+   ],
+   "cited_ids": [
+    353,
+    354
+   ],
+   "cited_hits_gold": [
+    true,
+    true
+   ],
+   "gold_in_provided": true,
+   "steps": 0,
+   "sentences": [
+    {
+     "text": "In the experiments, the baselines used are various versions of LiLi, specifically:",
+     "cited": []
+    },
+    {
+     "text": "- **Single**: A version where a single prediction model is trained for all test relations [5].",
+     "cited": [
+      5
+     ],
+     "p_entail": 0.996,
+     "p_contradict": 0.0026,
+     "supported": true
+    },
+    {
+     "text": "- **Sep**: A version where past learned weights are not transferred for initialization (disabling lifelong learning) [5].",
+     "cited": [
+      5
+     ],
+     "p_entail": 0.863,
+     "p_contradict": 0.0221,
+     "supported": true
+    },
+    {
+     "text": "- **F-th**: A version using a fixed prediction threshold of 0.5 instead of relation-specific thresholds [2][5].",
+     "cited": [
+      2,
+      5
+     ],
+     "p_entail": 0.9884,
+     "p_contradict": 0.0042,
+     "supported": true
+    }
+   ]
+  }
+ ]
+}
