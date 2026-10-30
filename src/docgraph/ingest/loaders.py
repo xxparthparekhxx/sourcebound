@@ -315,7 +315,7 @@ def parse_pdf(path: Path, *, ocr: OcrFn | None = None, min_chars: int = 20, dpi:
         pages = [_pdf_blocks(p) for p in doc]
         # Which pages have no usable text layer?
         no_text: list[int] = []
-        for i, p in enumerate(doc):
+        for i in range(len(doc)):
             if sum(len(b.text) for b in pages[i]) < min_chars:
                 no_text.append(i)
 

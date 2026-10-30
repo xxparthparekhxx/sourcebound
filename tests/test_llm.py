@@ -1,4 +1,3 @@
-import httpx
 import pytest
 
 from docgraph.config import EndpointConfig

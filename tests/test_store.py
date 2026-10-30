@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from docgraph.config import Config, EndpointConfig, GraphConfig
+from docgraph.config import Config, EndpointConfig
 from docgraph.graph import graph_candidates, parse_extraction
 from docgraph.ingest.pipeline import ingest_path
 from docgraph.llm import ChatClient

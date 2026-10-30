@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from pathlib import Path
 
 from common import (
@@ -17,8 +16,6 @@ from common import (
 
 from docgraph.config import load_config
 from docgraph.ingest.pipeline import ingest_path
-from docgraph.rerank import FlashScorer
-from docgraph.retrieval import Retriever
 from docgraph.runtime import Runtime
 
 TEMPLATES = {
@@ -99,7 +96,7 @@ def templates(args) -> None:
             if rt.reranker._scorer is not None:
                 rt.reranker._scorer.cfg = cfg.rerank
         rows = []
-        for scope in ("paper", "pooled"):
+        for scope in ("paper",):  # the template choice only needs the within-paper ranking
             ms = []
             for q, anns in prepared:
                 docs = [doc_id[q["paper_id"]]] if scope == "paper" else None
@@ -108,7 +105,7 @@ def templates(args) -> None:
             n = len(ms)
             rows.append({"scope": scope, **{k: round(sum(m[k] for m in ms) / n, 4) for k in ("recall@5", "recall@10", "rr")}})
         results[name] = rows
-        print(f"{name:22}", *[f"{r['scope']}: R@5 {r['recall@5']:.3f} MRR {r['rr']:.3f}" for r in rows], flush=True)
+        print(f"{name:22}", *[f"{r['scope']}: R@5 {r['recall@5']:.3f} R@10 {r['recall@10']:.3f} MRR {r['rr']:.3f}" for r in rows], flush=True)
     write_json(RESULTS / "dev-rerank-templates.json", {
         "meta": {**environment(), "task": "choose the rerank hypothesis template on dev papers",
                  "dev_questions": len(prepared), "dev_papers": len(data["papers"]), "templates": TEMPLATES},

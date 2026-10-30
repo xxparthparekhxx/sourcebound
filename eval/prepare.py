@@ -14,8 +14,6 @@ The dev papers are disjoint from the evaluation papers and are only used to choo
 from __future__ import annotations
 
 import argparse
-import json
-import re
 from pathlib import Path
 
 from common import DEFAULT_DATA, environment, sample, write_json

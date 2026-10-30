@@ -1,7 +1,7 @@
 import json
 
 import pytest
-from fastapi import Depends, HTTPException
+from fastapi import HTTPException
 from fastapi.testclient import TestClient
 
 from docgraph.api import create_app
