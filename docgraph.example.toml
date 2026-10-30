@@ -1,0 +1,83 @@
+# Copy to docgraph.toml (or set DOCGRAPH_CONFIG). API keys never go in this file:
+# an endpoint names the environment variable that holds its key.
+
+data_dir = ".docgraph"
+
+# ---------------------------------------------------------------- chat endpoints
+# Tried in order. A connection error, timeout, HTTP 429 or 5xx moves on to the next one.
+# An endpoint whose api_key_env variable is not set is skipped.
+
+[chat]
+timeout = 120
+max_tokens = 1024
+passes = 1        # passes over the list before giving up; raise it for rate-limited free tiers
+backoff = 2.0
+
+[[chat.endpoints]]
+name = "nim"
+base_url = "https://integrate.api.nvidia.com/v1"
+api_key_env = "NVIDIA_API_KEY"
+model = "meta/llama-3.3-70b-instruct"
+
+[[chat.endpoints]]
+name = "openrouter"
+base_url = "https://openrouter.ai/api/v1"
+api_key_env = "OPENROUTER_API_KEY"
+model = "google/gemma-4-31b-it:free"
+
+[[chat.endpoints]]
+name = "ollama"
+base_url = "http://localhost:11434/v1"
+model = "bonsai-2"
+# Ollama truncates prompts to its context length (4096 unless the server is started with
+# OLLAMA_CONTEXT_LENGTH, or the model has num_ctx in a Modelfile). Declare the real value here:
+# docgraph then trims passages to fit, and never sends a prompt that would be cut off silently.
+context_tokens = 4096
+# Sent with every request to this endpoint. These win over docgraph's own defaults.
+# bonsai-2 thinks by default; "none" turns that off. Sampling values are the model card's
+# recommendations for non-thinking use.
+options = { reasoning_effort = "none", temperature = 0.7, top_p = 0.8, top_k = 20, min_p = 0.0, presence_penalty = 1.5 }
+
+# ---------------------------------------------------------------- embeddings
+# Configured separately from chat. The index records the model name and dimension and refuses
+# to be used with a different one.
+
+[embeddings]
+provider = "local"                 # "local" = fastembed on CPU, "openai" = any /v1/embeddings
+model = "BAAI/bge-small-en-v1.5"
+
+# provider = "openai"
+# base_url = "http://localhost:11434/v1"
+# model = "nomic-embed-text"
+# api_key_env = "EMBED_API_KEY"    # optional
+# query_prefix = "search_query: "
+# document_prefix = "search_document: "
+
+# ---------------------------------------------------------------- ingest
+[ingest]
+chunk_size = 1200                  # characters
+chunk_overlap = 200
+context_header = true              # embed "title > heading" together with the chunk text
+
+[ingest.ocr]                       # scanned PDF pages with no text layer; off by default
+enabled = false
+# endpoint = "ollama"              # must be vision-capable; default is the first usable endpoint
+# model = "bonsai-2"
+dpi = 150
+
+[ingest.graph]                     # knowledge-graph extraction: one LLM call per chunk
+enabled = false
+workers = 2
+
+# ---------------------------------------------------------------- retrieval (each stage can be switched)
+[retrieval]
+vector = true
+bm25 = true
+mmr = true
+graph = false
+rerank = false                     # openjev-flash; needs `uv sync --extra rerank`
+top_k = 5
+
+[answer]
+mode = "pipeline"                  # or "agent"
+max_steps = 4
