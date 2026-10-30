@@ -167,6 +167,40 @@ def test_max_input_tokens_uses_the_smallest_declared_window(llm_servers):
     assert ChatClient([ep(a, "c")]).max_input_tokens() is None
 
 
+LONG = [{"role": "user", "content": "alpha beta gamma " * 400}]  # 6800 characters, about 1950 estimated tokens
+
+
+@pytest.mark.parametrize("stream", [False, True])
+def test_a_prompt_the_server_reports_as_cut_short_is_flagged(llm_servers, stream):
+    # What Ollama does when the prompt exceeds its context: it drops the start and reports the shorter count.
+    srv = llm_servers(Reply(content="answer", prompt_tokens=700))
+    client = ChatClient([ep(srv, "o", context_tokens=3000)], max_tokens=256)
+    if stream:
+        res = [e for e in client.stream(LONG) if isinstance(e, Final)][0].result
+    else:
+        res = client.complete(LONG)
+    assert res.truncated and "700 prompt tokens" in res.truncated and "OLLAMA_CONTEXT_LENGTH" in res.truncated
+
+
+def test_a_plausible_prompt_token_count_is_not_flagged(llm_servers):
+    srv = llm_servers(Reply(content="answer", prompt_tokens=1900))
+    assert ChatClient([ep(srv, "o", context_tokens=3000)], max_tokens=256).complete(LONG).truncated is None
+
+
+def test_truncation_is_not_checked_without_a_declared_context_or_for_short_prompts(llm_servers):
+    srv = llm_servers(Reply(content="answer", prompt_tokens=3))
+    assert ChatClient([ep(srv, "o")], max_tokens=256).complete(LONG).truncated is None
+    assert ChatClient([ep(srv, "o", context_tokens=3000)], max_tokens=256).complete(MSGS).truncated is None
+
+
+def test_usage_is_requested_in_streams_only_when_a_context_is_declared(llm_servers):
+    srv = llm_servers(Reply(content="x"))
+    list(ChatClient([ep(srv, "o", context_tokens=3000)]).stream(MSGS))
+    list(ChatClient([ep(srv, "p")]).stream(MSGS))
+    assert srv.requests[0].get("stream_options") == {"include_usage": True}
+    assert "stream_options" not in srv.requests[1]
+
+
 def test_estimate_tokens_counts_images():
     msgs = [{"role": "user", "content": [{"type": "text", "text": "x" * 350}, {"type": "image_url", "image_url": {"url": "data:..."}}]}]
     assert estimate_tokens(msgs) > 1200

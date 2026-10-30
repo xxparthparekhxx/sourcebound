@@ -109,7 +109,7 @@ def run(args) -> None:
             gold_in_provided = any(ev.covered_by(ct(provided[cid])) for cid in provided_ids for a in anns for ev in a)
             rec |= {
                 "answer": ans.text, "no_answer": ans.no_answer, "mode": ans.mode, "fallback": ans.fallback_reason,
-                "endpoint": ans.endpoint, "model": ans.model, "uncited": ans.uncited, "flagged": ans.flagged,
+                "endpoint": ans.endpoint, "model": ans.model, "uncited": ans.uncited, "flagged": ans.flagged, "truncated_prompt": ans.truncated,
                 "provided_ids": provided_ids, "cited_ids": cited, "cited_hits_gold": hit,
                 "gold_in_provided": gold_in_provided, "steps": len(ans.steps),
                 "_cited_texts": cited_texts,
@@ -167,6 +167,7 @@ def run(args) -> None:
         "answered_with_citations": len(with_cites), "answered_without_citations": len(answered) - len(with_cites),
         "answers_with_removed_citations": sum(1 for r in answered if r["flagged"]),
         "agent_fallbacks": sum(1 for r in done if r.get("fallback")),
+        "prompts_reported_truncated": sum(1 for r in done if r.get("truncated_prompt")),
         "gold_evidence_in_provided_passages": ci([float(r["gold_in_provided"]) for r in done]) if done else None,
         "citation_precision_micro": {"cited_passages": total_cited, "overlapping_gold": total_hits,
                                      "value": round(total_hits / total_cited, 4) if total_cited else None},

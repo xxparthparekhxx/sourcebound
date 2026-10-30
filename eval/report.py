@@ -85,6 +85,7 @@ def answer_tables(paths: list[Path]) -> list[str]:
             f"retrieval {m['retrieval_scope']}, {m['retrieval_flags']}; faithfulness model {m['faithfulness_model']} "
             f"(entailment >= {m['entailment_threshold']}); {s['answers_with_removed_citations']} answers had a citation removed; "
             f"{s['call_errors']} failed calls; {s['agent_fallbacks']} agent fallbacks; "
+            f"{s.get('prompts_reported_truncated', 'n/a')} prompts reported truncated by the server; "
             f"gold evidence among the passages given to the model in {fmt(s['gold_evidence_in_provided_passages'])} of answers"
             + (f"; STOPPED EARLY: {m['stopped_early']}" if m.get("stopped_early") else "")
         )

@@ -92,6 +92,9 @@ class ChatResult:
     endpoint: str = ""
     model: str = ""
     usage: dict[str, Any] = field(default_factory=dict)
+    # The server reported far fewer prompt tokens than the prompt must contain: it cut the prompt
+    # to its own context length (Ollama does this without an error).
+    truncated: str | None = None
 
     def assistant_message(self) -> dict[str, Any]:
         """The message to append to the conversation before sending tool results."""
@@ -127,6 +130,38 @@ def estimate_tokens(messages: Sequence[Mapping[str, Any]], tools: Sequence[Mappi
     if tools:
         chars += len(json.dumps(list(tools)))
     return int(chars / 3.5) + 1 + images * IMAGE_TOKEN_ESTIMATE
+
+
+def prompt_chars(messages: Sequence[Mapping[str, Any]], tools: Sequence[Mapping[str, Any]] | None = None) -> int:
+    chars = 0
+    for m in messages:
+        content = m.get("content")
+        if isinstance(content, str):
+            chars += len(content)
+        elif isinstance(content, list):
+            chars += sum(len(str(p.get("text", ""))) for p in content if isinstance(p, Mapping) and p.get("type") == "text")
+    return chars + (len(json.dumps(list(tools))) if tools else 0)
+
+
+# No tokenizer averages more than about 6 characters per token on running text, so a prompt of N
+# characters cannot honestly be fewer than N/6 tokens. Reporting fewer means the server dropped some.
+MIN_CHARS_PER_TOKEN_BOUND = 6.0
+
+
+def detect_truncation(ep: "EndpointConfig", messages, tools, usage: Mapping[str, Any]) -> str | None:
+    """Describe a silent truncation, or None. Needs the server's usage report and a declared context."""
+    reported = usage.get("prompt_tokens")
+    if not ep.context_tokens or not isinstance(reported, int) or reported <= 0:
+        return None
+    chars = prompt_chars(messages, tools)
+    if estimate_tokens(messages, tools) < ep.context_tokens // 4:
+        return None  # a small fraction of the window: nothing to truncate, do not second-guess
+    floor = chars / MIN_CHARS_PER_TOKEN_BOUND
+    if reported < 0.9 * floor:
+        return (f"{ep.label} reported {reported} prompt tokens for about {chars} characters (at least {int(floor)} expected); "
+                f"it probably truncated the prompt to its context length. Raise the server's context length "
+                f"(for Ollama: OLLAMA_CONTEXT_LENGTH) and context_tokens on this endpoint.")
+    return None
 
 
 @dataclass
@@ -280,6 +315,8 @@ class ChatClient:
             body["tools"] = list(tools)
             body["tool_choice"] = "auto"
         body["stream"] = stream
+        if stream and ep.context_tokens:
+            body["stream_options"] = {"include_usage": True}  # lets us notice a silently truncated prompt
         return body
 
     def _headers(self, ep: EndpointConfig) -> dict[str, str]:
@@ -306,15 +343,22 @@ class ChatClient:
                 resp = self._http.post(url, json=body, headers=self._headers(ep))
                 self._check_status(ep, resp.status_code, resp.text, resp.headers, bool(tools))
                 result = self._parse_completion(resp.text, ep, used_model)
+                result.truncated = self._truncation(ep, messages, tools, result.usage)
                 yield Final(result)
                 return
             with self._http.stream("POST", url, json=body, headers=self._headers(ep)) as resp:
                 if resp.status_code != 200:
                     resp.read()
                     self._check_status(ep, resp.status_code, resp.text, resp.headers, bool(tools))
-                yield from self._consume_stream(resp, ep, used_model)
+                yield from self._consume_stream(resp, ep, used_model, messages, tools)
         except httpx.TransportError as e:
             raise _Retry(Attempt(ep.label, f"{type(e).__name__}: {e}")) from e
+
+    def _truncation(self, ep: EndpointConfig, messages, tools, usage) -> str | None:
+        note = detect_truncation(ep, messages, tools, usage)
+        if note:
+            log.warning("%s", note)
+        return note
 
     def _check_status(self, ep: EndpointConfig, status: int, text: str, headers, with_tools: bool) -> None:
         if status < 400:
@@ -377,7 +421,7 @@ class ChatClient:
             usage=data.get("usage") or {},
         )
 
-    def _consume_stream(self, resp: httpx.Response, ep: EndpointConfig, model: str) -> Iterator[TextDelta | Final]:
+    def _consume_stream(self, resp: httpx.Response, ep: EndpointConfig, model: str, messages=(), tools=None) -> Iterator[TextDelta | Final]:
         think = ThinkFilter()
         content: list[str] = []
         calls: dict[int, dict[str, str]] = {}
@@ -385,6 +429,7 @@ class ChatClient:
         committed = False
         non_sse: list[str] = []
         used_model = model
+        usage: dict[str, Any] = {}
 
         try:
             for line in resp.iter_lines():
@@ -410,6 +455,8 @@ class ChatClient:
                         raise _Retry(Attempt(ep.label, f"error in stream: {msg[:200]}", code))
                     raise EndpointRejected(ep.label, code, msg)
                 used_model = chunk.get("model") or used_model
+                if isinstance(chunk.get("usage"), dict):
+                    usage = chunk["usage"]
                 for choice in chunk.get("choices") or []:
                     delta = choice.get("delta") or {}
                     piece = delta.get("content")
@@ -441,6 +488,7 @@ class ChatClient:
             # Some servers ignore stream=true and return one JSON document.
             if non_sse:
                 result = self._parse_completion("\n".join(non_sse), ep, used_model)
+                result.truncated = self._truncation(ep, messages, tools, result.usage)
                 if result.content:
                     yield TextDelta(result.content)
                 yield Final(result)
@@ -460,5 +508,7 @@ class ChatClient:
                 finish_reason=finish,
                 endpoint=ep.label,
                 model=used_model,
+                usage=usage,
+                truncated=self._truncation(ep, messages, tools, usage),
             )
         )

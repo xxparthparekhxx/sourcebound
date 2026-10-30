@@ -208,6 +208,9 @@ def run_agent(
             yield {"type": "token", "text": tail}
         assert result is not None
         endpoint_info.update(endpoint=result.endpoint, model=result.model)
+        if result.truncated:
+            endpoint_info["truncated"] = result.truncated
+            yield {"type": "notice", "message": f"Warning: {result.truncated}"}
 
         if result.tool_calls and not forced:
             checked = [(tc, check_tool_call(tc)) for tc in result.tool_calls]  # all-or-nothing: raises on a bad call

@@ -20,6 +20,7 @@ class Reply:
     tool_calls: list[dict[str, Any]] | None = None  # [{"name": ..., "arguments": dict | str}]
     body: str | None = None  # raw body for error statuses
     headers: dict[str, str] = field(default_factory=dict)
+    prompt_tokens: int = 10  # what the server claims to have read; a small value mimics silent truncation
 
 
 def _completion(reply: Reply, model: str) -> dict[str, Any]:
@@ -41,7 +42,7 @@ def _completion(reply: Reply, model: str) -> dict[str, Any]:
         "object": "chat.completion",
         "model": model,
         "choices": [{"index": 0, "message": msg, "finish_reason": "tool_calls" if reply.tool_calls else "stop"}],
-        "usage": {"prompt_tokens": 10, "completion_tokens": 5, "total_tokens": 15},
+        "usage": {"prompt_tokens": reply.prompt_tokens, "completion_tokens": 5, "total_tokens": reply.prompt_tokens + 5},
     }
 
 
@@ -127,6 +128,8 @@ class FakeLLM:
                         w.write(_sse({"model": model, "choices": [{"index": 0, "delta": {"tool_calls": [d]}}]}))
                 finish = "tool_calls" if reply.tool_calls else "stop"
                 w.write(_sse({"model": model, "choices": [{"index": 0, "delta": {}, "finish_reason": finish}]}))
+                if (body.get("stream_options") or {}).get("include_usage"):
+                    w.write(_sse({"model": model, "choices": [], "usage": {"prompt_tokens": reply.prompt_tokens, "completion_tokens": 5}}))
                 w.write(b"data: [DONE]\n\n")
                 w.flush()
 

@@ -110,6 +110,20 @@ def test_pipeline_drops_lowest_ranked_passages_to_fit_a_small_context(env):
     assert srv3.requests == []
 
 
+def test_a_prompt_the_server_cut_short_is_reported_not_hidden(env):
+    build, _, _ = env
+    probe, psrv = build(Reply(content="ok [1]"), context_tokens=100000)
+    probe.ask(SLEEP_Q)
+    full = estimate_tokens(psrv.requests[0]["messages"])
+    # the prompt fills most of the declared window, and the server claims to have read only 20 tokens
+    a, _ = build(Reply(content="ok [1]", prompt_tokens=20), context_tokens=256 + full + 40)
+    ans = a.ask(SLEEP_Q)
+    assert ans.truncated and "20 prompt tokens" in ans.truncated
+    assert any(n.startswith("Warning:") and "truncated" in n for n in ans.notices)
+    b, _ = build(Reply(content="ok [1]", prompt_tokens=full), context_tokens=256 + full + 40)
+    assert b.ask(SLEEP_Q).truncated is None
+
+
 # ------------------------------------------------------------------------ agent
 
 def agent_script(*turns):

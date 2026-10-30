@@ -40,6 +40,7 @@ class Answer:
     retrieval_reason: str = ""
     steps: list[dict] = field(default_factory=list)
     notices: list[str] = field(default_factory=list)
+    truncated: str | None = None  # set when the server seems to have cut the prompt to its context length
 
 
 def citation_dict(n: int, p: Passage, *, text: bool = True) -> dict:
@@ -71,6 +72,7 @@ class Answerer:
                 ans.mode, ans.requested_mode = ev["mode"], ev["requested_mode"]
                 ans.fallback_reason, ans.no_answer, ans.uncited = ev["fallback"], ev["no_answer"], ev["uncited"]
                 ans.endpoint, ans.model, ans.steps = ev["endpoint"], ev["model"], ev["steps"]
+                ans.truncated = ev.get("truncated")
         return ans
 
     def stream(
@@ -134,6 +136,7 @@ class Answerer:
             "type": "done", "mode": mode, "requested_mode": requested, "fallback": fallback,
             "no_answer": no_answer, "uncited": uncited, "endpoint": info.get("endpoint", ""),
             "model": info.get("model", ""), "steps": steps, "trimmed": trimmed,
+            "truncated": info.get("truncated"),
         }
 
     def _pipeline(self, question, doc_ids, retrieval, *, requested: str, fallback: str | None) -> Iterator[Event]:
@@ -166,7 +169,10 @@ class Answerer:
             parts.append(tail)
             yield {"type": "token", "text": tail}
         assert final is not None
-        yield from self._finish("pipeline", requested, fallback, shown, flt, {"endpoint": final.endpoint, "model": final.model}, [], dropped)
+        if final.truncated:
+            yield {"type": "notice", "message": f"Warning: {final.truncated}"}
+        info = {"endpoint": final.endpoint, "model": final.model, "truncated": final.truncated}
+        yield from self._finish("pipeline", requested, fallback, shown, flt, info, [], dropped)
 
     def _finish(self, mode, requested, fallback, shown: PassageSet, flt: CitationFilter, info, steps, trimmed) -> Iterator[Event]:
         cited = [citation_dict(n, shown.numbers[n]) for n in flt.used]
