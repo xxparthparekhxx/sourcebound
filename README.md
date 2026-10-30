@@ -158,8 +158,8 @@ weighting rare entities higher. Reranking scores each candidate passage against 
 openjev-flash (P(entailment) of "the passage answers the question ...").
 
 **"Nothing relevant".** Retrieval reports relevant when the best vector similarity reaches
-`min_vector_score` (0.55), or a returned passage contains at least half of the question's content words
-(and at least two of them), or the question names a graph entity. Otherwise `ask` answers with a fixed
+`min_vector_score` (0.6), or one returned passage contains all of the question's content words (at
+least two of them unless the question has only one), or the question names a graph entity. Otherwise `ask` answers with a fixed
 message and makes no model call. The prompt also tells the model to say so when the passages lack the
 answer.
 

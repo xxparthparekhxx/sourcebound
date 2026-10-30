@@ -1,0 +1,206 @@
+{
+ "meta": {
+  "date": "2026-10-30T10:41:59+00:00",
+  "git_commit": "aa69e19",
+  "git_dirty": false,
+  "python": "3.12.14",
+  "platform": "Linux-7.3.0-5-cachyos-x86_64-with-glibc2.44",
+  "command": "dev.py gate",
+  "task": "vector-similarity gate calibration",
+  "embedding": "see retrieval results",
+  "off_topic_questions": [
+   "What is the capital of Mongolia?",
+   "How do I bake sourdough bread at home?",
+   "Who won the football world cup in 2010?",
+   "What is the boiling point of tungsten?",
+   "How many moons does Saturn have?",
+   "What is the best way to learn the guitar?",
+   "When did the Roman Empire fall?",
+   "How does a refrigerator work?",
+   "What are the symptoms of the flu?",
+   "Who painted the Mona Lisa?",
+   "How tall is Mount Kilimanjaro?",
+   "What is the speed of light in a vacuum?",
+   "How do I change a flat tire?",
+   "What is the plot of Romeo and Juliet?",
+   "How much water should an adult drink per day?",
+   "Which planet is closest to the sun?",
+   "What is the population of Brazil?",
+   "How do vaccines work?",
+   "What is the recipe for chocolate chip cookies?",
+   "Who invented the telephone?",
+   "What causes earthquakes?",
+   "How do I file my income taxes?",
+   "What is the longest river in Africa?",
+   "Which country has the most islands?",
+   "How does compound interest work?",
+   "What is the tallest building in the world?",
+   "How do bees make honey?",
+   "What is the difference between weather and climate?",
+   "When was the printing press invented?",
+   "How do airplanes stay in the air?",
+   "What is the national anthem of Canada?",
+   "How many players are on a basketball team?",
+   "What is the chemical formula of table salt?",
+   "Who wrote Pride and Prejudice?",
+   "How long does it take to walk a marathon?",
+   "What is the currency of Japan?",
+   "How do solar panels generate electricity?",
+   "Which vitamin helps the body absorb calcium?",
+   "What is the largest ocean on Earth?",
+   "How do I train a puppy to sit?"
+  ]
+ },
+ "results": {
+  "dev": {
+   "n": {
+    "answerable": 35,
+    "out_of_corpus": 176,
+    "off_topic": 40
+   },
+   "best_similarity_percentiles": {
+    "answerable": {
+     "0": 0.592,
+     "5": 0.617,
+     "25": 0.665,
+     "50": 0.719,
+     "75": 0.753,
+     "95": 0.799,
+     "100": 0.86
+    },
+    "out_of_corpus": {
+     "0": 0.501,
+     "5": 0.592,
+     "25": 0.66,
+     "50": 0.698,
+     "75": 0.735,
+     "95": 0.776,
+     "100": 0.802
+    },
+    "off_topic": {
+     "0": 0.427,
+     "5": 0.435,
+     "25": 0.455,
+     "50": 0.483,
+     "75": 0.52,
+     "95": 0.546,
+     "100": 0.575
+    }
+   },
+   "share_with_best_similarity_at_or_above_threshold": {
+    "0.45": {
+     "answerable": 1.0,
+     "out_of_corpus": 1.0,
+     "off_topic": 0.75
+    },
+    "0.5": {
+     "answerable": 1.0,
+     "out_of_corpus": 1.0,
+     "off_topic": 0.325
+    },
+    "0.55": {
+     "answerable": 1.0,
+     "out_of_corpus": 0.983,
+     "off_topic": 0.05
+    },
+    "0.6": {
+     "answerable": 0.971,
+     "out_of_corpus": 0.938,
+     "off_topic": 0.0
+    },
+    "0.65": {
+     "answerable": 0.829,
+     "out_of_corpus": 0.79,
+     "off_topic": 0.0
+    },
+    "0.7": {
+     "answerable": 0.629,
+     "out_of_corpus": 0.472,
+     "off_topic": 0.0
+    }
+   },
+   "configured_gate_pass_rate": {
+    "answerable": 0.9714285714285714,
+    "out_of_corpus": 0.9431818181818182,
+    "off_topic": 0.0,
+    "min_vector_score": 0.6,
+    "min_term_overlap": 1.0
+   }
+  },
+  "eval": {
+   "n": {
+    "answerable": 176,
+    "out_of_corpus": 35,
+    "off_topic": 40
+   },
+   "best_similarity_percentiles": {
+    "answerable": {
+     "0": 0.616,
+     "5": 0.651,
+     "25": 0.704,
+     "50": 0.741,
+     "75": 0.773,
+     "95": 0.847,
+     "100": 0.942
+    },
+    "out_of_corpus": {
+     "0": 0.634,
+     "5": 0.649,
+     "25": 0.678,
+     "50": 0.723,
+     "75": 0.738,
+     "95": 0.799,
+     "100": 0.828
+    },
+    "off_topic": {
+     "0": 0.456,
+     "5": 0.463,
+     "25": 0.487,
+     "50": 0.515,
+     "75": 0.537,
+     "95": 0.58,
+     "100": 0.607
+    }
+   },
+   "share_with_best_similarity_at_or_above_threshold": {
+    "0.45": {
+     "answerable": 1.0,
+     "out_of_corpus": 1.0,
+     "off_topic": 1.0
+    },
+    "0.5": {
+     "answerable": 1.0,
+     "out_of_corpus": 1.0,
+     "off_topic": 0.625
+    },
+    "0.55": {
+     "answerable": 1.0,
+     "out_of_corpus": 1.0,
+     "off_topic": 0.175
+    },
+    "0.6": {
+     "answerable": 1.0,
+     "out_of_corpus": 1.0,
+     "off_topic": 0.025
+    },
+    "0.65": {
+     "answerable": 0.949,
+     "out_of_corpus": 0.943,
+     "off_topic": 0.0
+    },
+    "0.7": {
+     "answerable": 0.756,
+     "out_of_corpus": 0.657,
+     "off_topic": 0.0
+    }
+   },
+   "configured_gate_pass_rate": {
+    "answerable": 1.0,
+    "out_of_corpus": 1.0,
+    "off_topic": 0.05,
+    "min_vector_score": 0.6,
+    "min_term_overlap": 1.0
+   }
+  }
+ }
+}

@@ -157,14 +157,16 @@ class RetrievalConfig(_Model):
     graph_max_chunks: int = 20
     rerank_candidates: int = 20
     # "Nothing relevant" gate (see retrieval.is_relevant)
-    min_vector_score: float = 0.55
-    min_term_overlap: float = 0.5
+    min_vector_score: float = 0.6  # chosen on the dev papers, see eval/results/gate-calibration.json
+    min_term_overlap: float = 1.0  # share of the question's content words one passage must contain
 
 
 class RerankConfig(_Model):
     model: str = "xxparthparekhxx/openjev-flash"
     device: str = "cpu"
-    hypothesis: str = 'The passage answers the question "{question}": it states the answer explicitly.'
+    # The text paired with each passage (the premise) when scoring relevance. The plain question worked
+    # best on held-out dev papers (eval/results/dev-rerank-templates.json).
+    hypothesis: str = "{question}"
     batch_size: int = 16
     max_length: int = 1024
     # Faithfulness: a sentence counts as supported when P(entailment) >= this.
