@@ -8,7 +8,7 @@ from .answer import Answerer
 from .config import Config
 from .embeddings import Embedder, make_embedder
 from .llm import ChatClient
-from .rerank import FlashScorer
+from .rerank import make_scorer
 from .retrieval import Retriever
 from .store import Index
 
@@ -18,12 +18,12 @@ class LazyReranker:
 
     def __init__(self, cfg):
         self.cfg = cfg
-        self._scorer: FlashScorer | None = None
+        self._scorer = None
 
     @property
-    def scorer(self) -> FlashScorer:
+    def scorer(self):
         if self._scorer is None:
-            self._scorer = FlashScorer(self.cfg)
+            self._scorer = make_scorer(self.cfg)
         return self._scorer
 
     def score(self, question: str, passages: Sequence[str]) -> list[float]:

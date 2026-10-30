@@ -32,7 +32,7 @@ from common import (
 
 from sourcebound.config import ConfigError, load_config
 from sourcebound.llm import ChatError
-from sourcebound.rerank import FlashScorer, split_sentences
+from sourcebound.rerank import make_scorer, split_sentences
 from sourcebound.runtime import Runtime
 
 _MARK = re.compile(r"\[(\d+(?:\s*[,;-]\s*\d+)*)\]")
@@ -120,7 +120,7 @@ def run(args) -> None:
               flush=True)
 
     # ---- faithfulness with openjev-flash, batched at the end
-    scorer = FlashScorer(cfg.rerank)
+    scorer = make_scorer(cfg.rerank)
     pairs: list[tuple[str, str]] = []
     owners: list[tuple[int, int]] = []
     for ri, r in enumerate(records):

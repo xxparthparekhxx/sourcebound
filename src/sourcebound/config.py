@@ -166,6 +166,15 @@ class RetrievalConfig(_Model):
 
 class RerankConfig(_Model):
     model: str = "xxparthparekhxx/openjev-flash"
+    # "torch" is the reference implementation; "onnx" runs the int8 export under ONNX Runtime (no torch).
+    backend: Literal["torch", "onnx"] = "torch"
+    # Pin the model repository to a commit (both backends); None follows the default branch.
+    revision: str | None = None
+    # onnx backend: the file inside the model repository (config.json and tokenizer.json are read from
+    # the same folder), or a local folder that holds all three.
+    onnx_file: str = "onnx/model_quantized.onnx"
+    onnx_dir: Path | None = None
+    threads: int = 0  # onnx backend: intra-op threads (0 = ONNX Runtime's default)
     device: str = "cpu"
     # The text paired with each passage (the premise) when scoring relevance. The plain question worked
     # best on held-out dev papers (eval/results/dev-rerank-templates.json).

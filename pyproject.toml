@@ -19,6 +19,8 @@ dependencies = [
 [project.optional-dependencies]
 # openjev-flash reranker / faithfulness scorer (CPU torch is enough)
 rerank = ["torch>=2.4", "transformers>=4.56", "huggingface-hub>=0.24"]
+# the same model through ONNX Runtime, no PyTorch (needs the int8 export published under onnx/ in the model repository)
+rerank-onnx = ["onnxruntime>=1.18", "tokenizers>=0.20", "huggingface-hub>=0.24"]
 # dataset loading for the Qasper eval
 eval = ["pyarrow>=15", "huggingface-hub>=0.24"]
 
@@ -26,7 +28,7 @@ eval = ["pyarrow>=15", "huggingface-hub>=0.24"]
 sourcebound = "sourcebound.cli:main"
 
 [dependency-groups]
-dev = ["pytest>=8"]
+dev = ["pytest>=8", "onnx>=1.16"]
 
 [build-system]
 requires = ["hatchling"]
