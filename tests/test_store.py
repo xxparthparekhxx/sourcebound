@@ -237,3 +237,32 @@ def test_extraction_clean_up_and_limits():
     # clipped to 4 entities first; then the generic "The paper" and the duplicate "bert" are dropped
     assert [e.name for e in ex.entities] == ["BERT", "GLUE"]
     assert [(r.source, r.target) for r in ex.relations] == [("BERT", "GLUE")]
+
+
+def test_enabling_ocr_reprocesses_a_pdf_whose_pages_were_skipped(tmp_path, cfg, index, llm_servers):
+    import pymupdf
+
+    pdf = tmp_path / "docs" / "scan.pdf"
+    pdf.parent.mkdir()
+    doc = pymupdf.open()
+    page = doc.new_page()
+    page.insert_image(pymupdf.Rect(50, 50, 300, 300), pixmap=pymupdf.Pixmap(pymupdf.csRGB, pymupdf.IRect(0, 0, 60, 60), False))
+    doc.save(pdf)
+    doc.close()
+
+    srv = llm_servers(Reply(content="# Recognised\n\nText that the vision model read from the scanned page image."))
+    client = ChatClient([EndpointConfig(name="v", base_url=srv.base_url, model="vision")])
+    first = ingest_path(index, pdf, cfg, client)                      # OCR off: page skipped, nothing indexed
+    assert first.documents[0].status == "ingested" and first.documents[0].n_chunks == 0
+    assert first.documents[0].skipped_pages and srv.requests == []
+
+    again = ingest_path(index, pdf, cfg, client)                      # still off: unchanged
+    assert again.documents[0].status == "unchanged"
+
+    third = ingest_path(index, pdf, cfg, client, ocr=True)            # OCR on: the same file is processed again
+    assert third.documents[0].status == "replaced" and third.documents[0].ocr_pages == [1]
+    assert index.stats()["chunks"] == 1
+    body = srv.requests[0]
+    parts = body["messages"][0]["content"]
+    assert parts[1]["image_url"]["url"].startswith("data:image/png;base64,")      # the page went out as an image
+    assert body["presence_penalty"] == 0.0

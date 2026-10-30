@@ -96,7 +96,9 @@ def ingest_path(
         try:
             sha = sha256_file(f)
             existing = index.get_document(src)
-            if existing is not None and existing.sha256 == sha and not force:
+            # Pages skipped earlier for lack of a text layer are worth another try once OCR is switched on.
+            retry_ocr = use_ocr and existing is not None and bool(existing.skipped_pages)
+            if existing is not None and existing.sha256 == sha and not force and not retry_ocr:
                 rep = DocReport(src, "unchanged", existing.title, existing.n_chunks, existing.n_pages, existing.skipped_pages)
                 if graph is not False and use_graph:
                     new_doc_ids.append(existing.id)  # pick up chunks that still lack a graph
