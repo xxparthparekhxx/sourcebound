@@ -191,10 +191,13 @@ class ChatClient:
         *,
         tools: Sequence[Mapping[str, Any]] | None = None,
         params: Mapping[str, Any] | None = None,
+        force: Mapping[str, Any] | None = None,
         endpoint: str | None = None,
         model: str | None = None,
     ) -> ChatResult:
-        for event in self._run(messages, tools, params, endpoint, model, stream=False):
+        """`params` are defaults that an endpoint's own `options` override; `force` wins over both, for
+        settings a task cannot work without (for example no presence penalty when writing JSON)."""
+        for event in self._run(messages, tools, params, force, endpoint, model, stream=False):
             if isinstance(event, Final):
                 return event.result
         raise ChatError("no result")  # pragma: no cover
@@ -205,10 +208,11 @@ class ChatClient:
         *,
         tools: Sequence[Mapping[str, Any]] | None = None,
         params: Mapping[str, Any] | None = None,
+        force: Mapping[str, Any] | None = None,
         endpoint: str | None = None,
         model: str | None = None,
     ) -> Iterator[TextDelta | Final]:
-        yield from self._run(messages, tools, params, endpoint, model, stream=True)
+        yield from self._run(messages, tools, params, force, endpoint, model, stream=True)
 
     def max_input_tokens(self, only: str | None = None) -> int | None:
         """Smallest declared prompt budget (context window minus the reply reserve) over usable endpoints."""
@@ -220,7 +224,7 @@ class ChatClient:
 
     # ------------------------------------------------------------------ fallback loop
 
-    def _run(self, messages, tools, params, only, model, *, stream: bool) -> Iterator[TextDelta | Final]:
+    def _run(self, messages, tools, params, force, only, model, *, stream: bool) -> Iterator[TextDelta | Final]:
         usable = self.usable_endpoints(only)
         if not usable:
             names = [e.api_key_env for e in self.endpoints if e.api_key_env and not e.available(self.env)]
@@ -236,7 +240,7 @@ class ChatClient:
             failed = False  # a retryable failure happened in this pass
             for ep in list(candidates):
                 try:
-                    yield from self._one(ep, messages, tools, params, model, stream)
+                    yield from self._one(ep, messages, tools, params, force, model, stream)
                     return
                 except _Retry as r:
                     log.warning("endpoint %s failed: %s", ep.label, r.attempt.error)
@@ -265,11 +269,13 @@ class ChatClient:
 
     # ------------------------------------------------------------------ one endpoint
 
-    def _body(self, ep: EndpointConfig, messages, tools, params, model, stream: bool) -> dict[str, Any]:
+    def _body(self, ep: EndpointConfig, messages, tools, params, force, model, stream: bool) -> dict[str, Any]:
         body: dict[str, Any] = {"model": model or ep.model, "messages": list(messages), "max_tokens": self.max_tokens}
         if params:
             body.update(params)
         body.update(ep.options)  # endpoint settings win over per-call defaults
+        if force:
+            body.update(force)
         if tools:
             body["tools"] = list(tools)
             body["tool_choice"] = "auto"
@@ -283,9 +289,9 @@ class ChatClient:
             h["Authorization"] = f"Bearer {key}"
         return h
 
-    def _one(self, ep: EndpointConfig, messages, tools, params, model, stream: bool) -> Iterator[TextDelta | Final]:
+    def _one(self, ep: EndpointConfig, messages, tools, params, force, model, stream: bool) -> Iterator[TextDelta | Final]:
         url = ep.base_url.rstrip("/") + "/chat/completions"
-        body = self._body(ep, messages, tools, params, model, stream)
+        body = self._body(ep, messages, tools, params, force, model, stream)
         used_model = body["model"]
         if ep.context_tokens:
             need = estimate_tokens(messages, tools) + int(body.get("max_tokens") or 0)

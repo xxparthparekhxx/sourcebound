@@ -123,8 +123,8 @@ class OcrConfig(_Model):
 class GraphConfig(_Model):
     enabled: bool = False  # extract entities and relations at ingest time (one LLM call per chunk)
     workers: int = 2
-    max_entities: int = 12
-    max_relations: int = 12
+    max_entities: int = 10
+    max_relations: int = 10
 
 
 class IngestConfig(_Model):

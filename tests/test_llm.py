@@ -88,6 +88,15 @@ def test_bearer_key_is_read_from_env_and_options_are_sent(llm_servers):
     assert body["top_p"] == 0.5
 
 
+def test_force_wins_over_endpoint_options_and_does_not_leak_between_calls(llm_servers):
+    a = llm_servers(Reply(content="x"))
+    client = ChatClient([ep(a, "a", options={"presence_penalty": 1.5, "temperature": 0.7})])
+    client.complete(MSGS, force={"presence_penalty": 0.0})
+    client.complete(MSGS)
+    assert a.requests[0]["presence_penalty"] == 0.0 and a.requests[0]["temperature"] == 0.7
+    assert a.requests[1]["presence_penalty"] == 1.5
+
+
 def test_streaming_yields_deltas_then_final_and_strips_think(llm_servers):
     a = llm_servers(Reply(content="<think>secret reasoning</think>The answer is 42."))
     events = list(ChatClient([ep(a, "a")]).stream(MSGS))

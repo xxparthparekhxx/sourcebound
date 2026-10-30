@@ -206,12 +206,27 @@ def test_failed_llm_calls_leave_chunks_pending(tmp_path, cfg, index, llm_servers
     "not json at all",
     '{"entities": "Alice", "relations": []}',
     '{"entities": [{"name": 5}], "relations": []}',
-    '{"entities": [{"name": "A"}], "relations": []}',        # name shorter than 2 characters
+    '{"entities": [{"name": "A"}], "relations": []}',        # the only item is invalid (name shorter than 2 characters)
     '[1, 2, 3]',
-    '{"entities": [{"name": "Alice"}], "relations": [{"source": "Alice"}]}',   # relation missing fields
+    '{"entities": [{"name": "Alice"}, {"name": "Bob"}], "relations": "none"}',   # relations is not a list
+    '{"entities": [], "relations": [{"name": "Ellipsis", "type": "tool"}]}',     # nothing valid at all
 ])
 def test_invalid_extractions_are_dropped(raw):
     assert parse_extraction(raw) is None
+
+
+def test_invalid_items_are_dropped_but_valid_ones_kept():
+    ex = parse_extraction(json.dumps({
+        "entities": [{"name": "Alice"}, {"name": 5}, {"name": "Acme"}],
+        "relations": [{"source": "Alice"}, {"name": "Acme", "type": "x"}, {"source": "Alice", "predicate": "works at", "target": "Acme"}],
+    }))
+    assert [e.name for e in ex.entities] == ["Alice", "Acme"]
+    assert [(r.source, r.predicate, r.target) for r in ex.relations] == [("Alice", "works at", "Acme")]
+
+
+def test_empty_extraction_is_valid():
+    ex = parse_extraction('{"entities": [], "relations": []}')
+    assert ex is not None and ex.entities == [] and ex.relations == []
 
 
 def test_extraction_clean_up_and_limits():

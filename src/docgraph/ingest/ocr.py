@@ -34,7 +34,8 @@ def make_ocr(client: ChatClient, cfg: OcrConfig) -> OcrFn:
             messages,
             endpoint=cfg.endpoint,
             model=cfg.model,
-            params={"temperature": 0.2, "max_tokens": 2048},
+            params={"max_tokens": 2048},
+            force={"temperature": 0.1, "presence_penalty": 0.0, "frequency_penalty": 0.0},  # transcription repeats text legitimately
         )
         return result.content
 

@@ -17,11 +17,11 @@ from .models import Passage
 from .store import Index, norm_entity
 
 SYSTEM_PROMPT = """You extract a knowledge graph from one passage of a document.
-Reply with a single JSON object and nothing else, in exactly this shape:
+Reply with a single JSON object on one line, with no code fence and no other text, in exactly this shape:
 {"entities": [{"name": "...", "type": "..."}], "relations": [{"source": "...", "predicate": "...", "target": "..."}]}
 
 Rules:
-- Entities are specific things named in the passage: people, organisations, methods, models, datasets, metrics, tools, places, technical concepts. Use the name as written. No pronouns, no generic words such as "the paper" or "results".
+- Entities are specific things named in the passage: people, organisations, methods, models, datasets, metrics, tools, places, technical concepts. Use the name as written. No pronouns, no generic words such as "the paper" or "results". No bare numbers or percentages, no citation keys, no references to tables or figures.
 - "type" is one lowercase word (person, organization, method, model, dataset, metric, tool, place, concept, other).
 - At most {max_entities} entities and {max_relations} relations.
 - A relation links two entities from your own list. "predicate" is a short verb phrase of at most five words, taken from what the passage says.
@@ -69,7 +69,13 @@ class Extraction(BaseModel):
 
 
 def parse_extraction(raw: str, max_entities: int = 12, max_relations: int = 12) -> Extraction | None:
-    """Parse and validate a model reply. Returns None when it is not valid (the chunk is then dropped)."""
+    """Parse and validate a model reply against the schema. Returns None when the reply is not valid,
+    in which case the chunk's extraction is dropped.
+
+    The reply must be a JSON object whose "entities" and "relations" are lists. Each item is then
+    validated on its own and an item that fails is discarded; if items were present but none of them
+    validate, the whole reply counts as invalid.
+    """
     text = raw.strip()
     text = re.sub(r"^```(?:json)?\s*|\s*```$", "", text)
     start, end = text.find("{"), text.rfind("}")
@@ -81,25 +87,38 @@ def parse_extraction(raw: str, max_entities: int = 12, max_relations: int = 12) 
         return None
     if not isinstance(data, dict):
         return None
-    # Models routinely ignore count limits; clip lists rather than reject the whole reply.
+    lists = {}
     for key, limit in (("entities", max_entities), ("relations", max_relations)):
-        if isinstance(data.get(key), list):
-            data[key] = data[key][:limit]
-    try:
-        ex = Extraction.model_validate(data)
-    except ValidationError:
+        value = data.get(key, [])
+        if not isinstance(value, list):
+            return None
+        lists[key] = value[:limit]  # models routinely ignore count limits; clip rather than reject
+
+    entities: list[_Ent] = []
+    for item in lists["entities"]:
+        try:
+            entities.append(_Ent.model_validate(item))
+        except ValidationError:
+            pass
+    relations: list[_Rel] = []
+    for item in lists["relations"]:
+        try:
+            relations.append(_Rel.model_validate(item))
+        except ValidationError:
+            pass
+    if (lists["entities"] or lists["relations"]) and not entities and not relations:
         return None
 
-    # Semantic clean-up: drop generic/duplicate entities and relations whose ends are not in the list.
+    # Semantic clean-up: drop generic/duplicate entities, and relations whose ends are not in the list.
     seen: dict[str, str] = {}
     ents: list[_Ent] = []
-    for e in ex.entities:
+    for e in entities:
         n = norm_entity(e.name)
         if not n or all(w in _GENERIC for w in n.split()) or n in seen:
             continue
         seen[n] = e.name
         ents.append(e)
-    rels = [r for r in ex.relations if norm_entity(r.source) in seen and norm_entity(r.target) in seen
+    rels = [r for r in relations if norm_entity(r.source) in seen and norm_entity(r.target) in seen
             and norm_entity(r.source) != norm_entity(r.target)]
     return Extraction(entities=ents, relations=rels)
 
@@ -120,7 +139,9 @@ def extract_chunk(client: ChatClient, text: str, cfg: GraphConfig, *, heading: s
     user = (f"Section: {heading}\n\n" if heading else "") + f"Passage:\n{text}"
     result = client.complete(
         [{"role": "system", "content": system}, {"role": "user", "content": user}],
-        params={"temperature": 0.0, "max_tokens": 700},
+        params={"max_tokens": 600},
+        # JSON output: repetition penalties push the model away from repeating keys and break the shape
+        force={"temperature": 0.1, "presence_penalty": 0.0, "frequency_penalty": 0.0},
     )
     return parse_extraction(result.content, cfg.max_entities, cfg.max_relations)
 
