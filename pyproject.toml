@@ -38,6 +38,7 @@ packages = ["src/docgraph"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+filterwarnings = ["ignore:Using `httpx` with `starlette.testclient`"]
 
 # Linux: take torch from the CPU index (the default wheels pull several GB of CUDA libraries).
 [tool.uv.sources]
