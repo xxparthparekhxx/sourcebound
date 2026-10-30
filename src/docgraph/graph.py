@@ -68,7 +68,7 @@ class Extraction(BaseModel):
     relations: list[_Rel] = Field(default_factory=list)
 
 
-def parse_extraction(raw: str, max_entities: int = 12, max_relations: int = 12) -> Extraction | None:
+def parse_extraction(raw: str, max_entities: int = 12, max_relations: int = 12, ignore: Sequence[re.Pattern] = ()) -> Extraction | None:
     """Parse and validate a model reply against the schema. Returns None when the reply is not valid,
     in which case the chunk's extraction is dropped.
 
@@ -114,7 +114,7 @@ def parse_extraction(raw: str, max_entities: int = 12, max_relations: int = 12) 
     ents: list[_Ent] = []
     for e in entities:
         n = norm_entity(e.name)
-        if not n or all(w in _GENERIC for w in n.split()) or n in seen:
+        if not n or all(w in _GENERIC for w in n.split()) or n in seen or any(p.search(e.name) for p in ignore):
             continue
         seen[n] = e.name
         ents.append(e)
@@ -143,7 +143,7 @@ def extract_chunk(client: ChatClient, text: str, cfg: GraphConfig, *, heading: s
         # JSON output: repetition penalties push the model away from repeating keys and break the shape
         force={"temperature": 0.1, "presence_penalty": 0.0, "frequency_penalty": 0.0},
     )
-    return parse_extraction(result.content, cfg.max_entities, cfg.max_relations)
+    return parse_extraction(result.content, cfg.max_entities, cfg.max_relations, [re.compile(p) for p in cfg.ignore_entities])
 
 
 def extract_graph(

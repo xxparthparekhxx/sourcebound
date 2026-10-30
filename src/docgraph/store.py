@@ -486,6 +486,20 @@ class Index:
             conn.rollback()
             raise
 
+    def purge_entities(self, patterns: Sequence[str]) -> int:
+        """Delete entities whose name matches any regular expression (their mentions and relations go too)."""
+        import re as _re
+
+        compiled = [_re.compile(p) for p in patterns]
+        if not compiled:
+            return 0
+        doomed = [r["id"] for r in self.conn.execute("SELECT id, name FROM entities") if any(c.search(r["name"]) for c in compiled)]
+        for start in range(0, len(doomed), 500):
+            batch = doomed[start : start + 500]
+            self.conn.execute(f"DELETE FROM entities WHERE id IN ({','.join('?' * len(batch))})", batch)
+        self.conn.commit()
+        return len(doomed)
+
     def match_entities(self, text: str, max_ngram: int = 5) -> list[Entity]:
         """Entities whose normalised name occurs in `text` as a whole-word n-gram."""
         words = norm_entity(text).split()

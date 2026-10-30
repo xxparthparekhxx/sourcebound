@@ -29,6 +29,10 @@ from docgraph.config import ConfigError, load_config
 from docgraph.ingest.pipeline import ingest_path
 from docgraph.runtime import Runtime
 
+# Qasper replaces citations, formulas and figure/table references with these tokens; models extract
+# them as "entities" even when told not to. They are removed from the graph before it is used.
+QASPER_PLACEHOLDERS = [r"^(INLINEFORM|BIBREF|FIGREF|TABREF|SECREF|EQREF)\d*$"]
+
 SETTINGS: dict[str, dict] = {
     "vector": dict(vector=True, bm25=False, mmr=False, graph=False, rerank=False),
     "vector+mmr": dict(vector=True, bm25=False, mmr=True, graph=False, rerank=False),
@@ -39,6 +43,21 @@ SETTINGS: dict[str, dict] = {
     "hybrid+graph+rerank": dict(vector=True, bm25=True, mmr=True, graph=True, rerank=True),
 }
 METRICS = ("recall@5", "recall@10", "rr")
+
+
+class CachedReranker:
+    """Memoises (question, passage) scores so settings that share candidates do not score them twice."""
+
+    def __init__(self, inner):
+        self.inner, self.cache, self.pairs_scored = inner, {}, 0
+
+    def score(self, question, passages):
+        missing = [p for p in dict.fromkeys(passages) if (question, p) not in self.cache]
+        if missing:
+            for p, sc in zip(missing, self.inner.score(question, missing)):
+                self.cache[(question, p)] = sc
+            self.pairs_scored += len(missing)
+        return [self.cache[(question, p)] for p in passages]
 
 
 def doc_sources(data: Path, docs: str) -> dict[str, str]:
@@ -74,6 +93,13 @@ def build_index(rt: Runtime, data: Path, docs: str, graph: bool, workers: int) -
     return out
 
 
+def summarize(rows: list[dict]) -> dict:
+    return {"n": len(rows)} | {
+        ("mrr" if k == "rr" else k): dict(zip(("mean", "ci95_lo", "ci95_hi"), (round(x, 4) for x in bootstrap_ci([r[k] for r in rows]))))
+        for k in METRICS
+    }
+
+
 def run(args) -> None:
     data = args.data
     qdata = load_questions(data, "questions.json")
@@ -106,12 +132,16 @@ def run(args) -> None:
         else:
             info = args.work / "qasper-index" / "build-info.json"
             build_info = json.loads(info.read_text()) if info.exists() else None
+        rt.retriever.reranker = cached = CachedReranker(rt.reranker)
         idx = rt.index
         doc_id = {pid: idx.doc_ids_for_sources([src])[0] for pid, src in sources.items() if idx.doc_ids_for_sources([src])}
         missing = set(sources) - set(doc_id)
         if missing:
             sys.exit(f"{len(missing)} papers are not indexed; run with --build first")
 
+        purged = idx.purge_entities(QASPER_PLACEHOLDERS) if idx.count("entities") else 0
+        if purged:
+            print(f"removed {purged} placeholder entities from the graph", flush=True)
         settings = [s for s in (args.settings.split(",") if args.settings else SETTINGS) if s in SETTINGS]
         have_graph = idx.count("entities") > 0
         if not have_graph:
@@ -162,14 +192,11 @@ def run(args) -> None:
         summary: dict = {}
         for r in records:
             summary.setdefault(r["scope"], {}).setdefault(r["setting"], []).append(r)
-        for scope, by in summary.items():
-            for name, rows in by.items():
-                summary[scope][name] = {"n": len(rows)} | {
-                    ("mrr" if k == "rr" else k): dict(zip(("mean", "ci95_lo", "ci95_hi"), map(lambda x: round(x, 4), bootstrap_ci([r[k] for r in rows]))))
-                    for k in METRICS
-                }
+        summary = {sc: {nm: summarize(rows) for nm, rows in d.items()} for sc, d in summary.items()}
 
         r_cfg = cfg.retrieval
+        this_run = {**environment(), "settings": settings, "scopes": args.scopes.split(","), "rerank_pairs_scored": cached.pairs_scored,
+                    "placeholder_entities_purged": purged, "placeholder_patterns": QASPER_PLACEHOLDERS}
         out = {
             "meta": {
                 **environment(),
@@ -191,7 +218,21 @@ def run(args) -> None:
             "summary": summary,
             "per_question": records,
         }
-        write_json(RESULTS / f"retrieval-{args.tag}.json", out)
+        target = RESULTS / f"retrieval-{args.tag}.json"
+        if args.update and target.exists():
+            old = json.loads(target.read_text())
+            redo = {(r["scope"], r["setting"]) for r in records}
+            kept = [r for r in old["per_question"] if (r["scope"], r["setting"]) not in redo]
+            out["per_question"] = kept + records
+            out["meta"]["seconds_per_setting"] = old["meta"].get("seconds_per_setting", {}) | timing
+            out["meta"]["runs"] = old["meta"].get("runs", []) + [this_run]
+            by: dict = {}
+            for r in out["per_question"]:
+                by.setdefault(r["scope"], {}).setdefault(r["setting"], []).append(r)
+            out["summary"] = {sc: {nm: summarize(rows) for nm, rows in d.items()} for sc, d in by.items()}
+        else:
+            out["meta"]["runs"] = [this_run]
+        write_json(target, out)
     finally:
         rt.close()
 
@@ -204,6 +245,7 @@ def main() -> None:
     ap.add_argument("--graph", action="store_true", help="with --build: also run LLM graph extraction")
     ap.add_argument("--graph-workers", type=int, default=4)
     ap.add_argument("--tag", help="run the ablation and write eval/results/retrieval-<tag>.json")
+    ap.add_argument("--update", action="store_true", help="merge these settings into an existing results file for --tag")
     ap.add_argument("--settings", help=f"comma list of: {', '.join(SETTINGS)}")
     ap.add_argument("--scopes", default="paper,pooled")
     ap.add_argument("--top-k", type=int, default=10)

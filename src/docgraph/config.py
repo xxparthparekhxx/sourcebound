@@ -125,6 +125,9 @@ class GraphConfig(_Model):
     workers: int = 2
     max_entities: int = 10
     max_relations: int = 10
+    # Regular expressions; an extracted entity whose name matches one is discarded
+    # (for corpora with placeholder tokens that models mistake for entities).
+    ignore_entities: list[str] = Field(default_factory=list)
 
 
 class IngestConfig(_Model):

@@ -266,3 +266,21 @@ def test_enabling_ocr_reprocesses_a_pdf_whose_pages_were_skipped(tmp_path, cfg, 
     parts = body["messages"][0]["content"]
     assert parts[1]["image_url"]["url"].startswith("data:image/png;base64,")      # the page went out as an image
     assert body["presence_penalty"] == 0.0
+
+
+def test_ignored_entities_are_dropped_at_extraction_and_can_be_purged_later(tmp_path, cfg, index, llm_servers):
+    reply = json.dumps({"entities": [{"name": "Acme Robotics"}, {"name": "INLINEFORM0"}, {"name": "BIBREF12"}],
+                        "relations": [{"source": "Acme Robotics", "predicate": "cites", "target": "BIBREF12"}]})
+    ex = parse_extraction(reply, ignore=[__import__("re").compile(r"^(INLINEFORM|BIBREF)\d+$")])
+    assert [e.name for e in ex.entities] == ["Acme Robotics"] and ex.relations == []
+
+    srv = llm_servers(Reply(content=reply))                    # the same reply for each of the document's 3 chunks
+    client = ChatClient([EndpointConfig(name="g", base_url=srv.base_url, model="m")])
+    ingest_path(index, write(tmp_path, "t.md", GRAPH_DOC), cfg, client, graph=True)
+    assert index.stats()["entities"] == 3 and index.stats()["relations"] == 3     # nothing ignored yet
+
+    assert index.purge_entities([r"^(INLINEFORM|BIBREF)\d+$"]) == 2
+    st = index.stats()
+    assert (st["entities"], st["relations"], st["mentions"]) == (1, 0, 3)          # the relation went with its entity
+    assert index.find_entity("Acme Robotics") is not None and index.find_entity("INLINEFORM0") is None
+    assert index.purge_entities([]) == 0
