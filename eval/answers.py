@@ -31,28 +31,10 @@ from common import (
 )
 
 from sourcebound.config import ConfigError, load_config
+from sourcebound.faithfulness import marker_numbers, strip_markers
 from sourcebound.llm import ChatError
 from sourcebound.rerank import make_scorer, split_sentences
 from sourcebound.runtime import Runtime
-
-_MARK = re.compile(r"\[(\d+(?:\s*[,;-]\s*\d+)*)\]")
-
-
-def marker_numbers(sentence: str) -> list[int]:
-    nums: list[int] = []
-    for m in _MARK.finditer(sentence):
-        for part in re.split(r"\s*[,;]\s*", m.group(1)):
-            if "-" in part:
-                a, b = part.split("-", 1)
-                nums.extend(range(int(a), int(b) + 1))
-            else:
-                nums.append(int(part))
-    return nums
-
-
-def strip_markers(sentence: str) -> str:
-    return re.sub(r"\s+", " ", _MARK.sub("", sentence)).strip()
-
 
 def run(args) -> None:
     try:

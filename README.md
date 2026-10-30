@@ -38,7 +38,7 @@ Requires Python 3.12 and [uv](https://docs.astral.sh/uv/).
 
 ```bash
 git clone <this repository> && cd sourcebound
-uv sync                               # add `--extra rerank` for openjev-flash, `--extra eval` for the evaluation
+uv sync                               # add `--extra rerank` (torch) or `--extra rerank-onnx` (ONNX Runtime) for openjev-flash, `--extra eval` for the evaluation
 cp .env.example .env                  # only needed for endpoints that use API keys
 ```
 
@@ -108,6 +108,11 @@ through fastembed (default `BAAI/bge-small-en-v1.5`), `provider = "openai"` uses
 endpoint. The index records the embedding model name and dimension, and refuses to be opened with a
 different one (it tells you to use a new `data_dir` or run `sourcebound reset`).
 
+openjev-flash (rerank and faithfulness) runs on either backend: `[rerank] backend = "torch"` (default, `--extra rerank`)
+or `backend = "onnx"` (`--extra rerank-onnx`), which runs the int8 export under `onnx/` in the model repository with
+ONNX Runtime and needs no PyTorch. `revision` pins the model repository to a commit, `threads` limits the ONNX
+Runtime threads, and `onnx_dir` points at a local copy of the export instead of downloading it.
+
 API keys are read from environment variables only; a config file that contains `api_key = ...` is
 rejected. `.env` in the working directory is loaded without overriding variables that are already set.
 
@@ -137,6 +142,14 @@ HTTP API (`sourcebound serve`):
 | `GET /passages/{id}` | one passage with document, file, page, heading, text and the ids of the previous and next passage |
 | `GET /healthz` | status, index counts, embedding model, chat endpoints (name, model, usable) |
 | `GET /` | the single-page UI: question box, streaming answer, clickable citations that open the passage |
+
+`sourcebound serve --public` is a locked-down variant for a public demo behind a gateway: every route except
+`GET /healthz` (which answers `{"status": "ok"}` and nothing else) needs an `X-Gateway-Secret` header equal to
+the environment variable named by `[serve].gateway_secret_env`, otherwise 401; the server refuses to start
+without it. `POST /ask` takes only `{"question"}` (at most `[serve].max_question_chars` = 500 characters) and
+streams `retrieval`, `token`*, `citations` (with passage text), `faithfulness` (each cited sentence scored by
+openjev-flash against the passages it cites) and `done` (with timings); at most `[serve].max_concurrent` = 2
+questions run at once and the next gets 503. Failures arrive as one generic `error` event.
 
 `create_app(..., ask_dependencies=[...])` accepts FastAPI dependencies that run before every `/ask`
 request, which is where rate limits or a bot check would go.

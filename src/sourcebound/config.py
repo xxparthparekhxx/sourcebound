@@ -192,6 +192,16 @@ class AnswerConfig(_Model):
     no_answer_message: str = "I could not find anything relevant to that question in the indexed documents."
 
 
+class ServeConfig(_Model):
+    """`sourcebound serve --public`: the locked-down mode meant to sit behind a gateway (see public.py)."""
+
+    # The gateway sends this secret in the X-Gateway-Secret header; the secret itself comes from the environment.
+    gateway_secret_env: str = "SOURCEBOUND_GATEWAY_SECRET"
+    max_question_chars: int = 500
+    max_concurrent: int = 2  # requests answered at once; more get HTTP 503
+    faithfulness: bool = True  # score each cited sentence with openjev-flash after the answer
+
+
 class Config(_Model):
     data_dir: Path = Path(".sourcebound")
     chat: ChatConfig = Field(default_factory=ChatConfig)
@@ -200,6 +210,7 @@ class Config(_Model):
     retrieval: RetrievalConfig = Field(default_factory=RetrievalConfig)
     rerank: RerankConfig = Field(default_factory=RerankConfig)
     answer: AnswerConfig = Field(default_factory=AnswerConfig)
+    serve: ServeConfig = Field(default_factory=ServeConfig)
 
     @property
     def db_path(self) -> Path:

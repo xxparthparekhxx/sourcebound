@@ -53,6 +53,9 @@ def build_parser() -> argparse.ArgumentParser:
     s = sub.add_parser("serve", help="run the web app")
     s.add_argument("--host", default="127.0.0.1")
     s.add_argument("--port", type=int, default=8000)
+    s.add_argument("--public", action="store_true",
+                   help="locked-down mode for a public demo behind a gateway: question-only POST /ask that needs the "
+                        "X-Gateway-Secret header, citations and per-sentence faithfulness, at most [serve].max_concurrent requests")
 
     s = sub.add_parser("eval", help="run the evaluation scripts in eval/ (prepare | dev | retrieval | answers | report)", add_help=False)
     s.add_argument("script", choices=["prepare", "retrieval", "answers", "report", "dev"])
@@ -209,9 +212,19 @@ def cmd_reset(cfg: Config, a) -> int:
 def cmd_serve(cfg: Config, a) -> int:
     import uvicorn
 
-    from .api import create_app
+    if a.public:
+        from .public import create_public_app
 
-    uvicorn.run(create_app(cfg), host=a.host, port=a.port, log_level="info")
+        try:
+            app = create_public_app(cfg)
+        except ConfigError as e:
+            _err(str(e))
+            return 2
+    else:
+        from .api import create_app
+
+        app = create_app(cfg)
+    uvicorn.run(app, host=a.host, port=a.port, log_level="info")
     return 0
 
 
