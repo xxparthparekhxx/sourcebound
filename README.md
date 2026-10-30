@@ -320,8 +320,28 @@ not), agent → pipeline fallback, the embedding-model guard, the context-length
 - **Security.** `sourcebound serve` has no authentication and is meant for localhost; put a proxy in front of it or pass
   `ask_dependencies` to `create_app` before exposing it. Answers are only as trustworthy as the documents: text in a document is
   placed in the prompt and can try to steer the model.
-- **Not done:** the public demo layer, a React UI, Neo4j or another graph database, analytics, user accounts, multi-user indexes,
-  incremental graph updates other than re-extracting pending chunks, a hosted deployment recipe.
+- **Not done:** a React UI, Neo4j or another graph database, analytics, user accounts, multi-user indexes,
+  incremental graph updates other than re-extracting pending chunks, a general hosted deployment recipe (the live demo above is one specific deployment).
+
+## Live demo
+
+https://sourcebound.parthparekhdev.com answers questions over the 40 Qasper validation papers used in the evaluation
+(1,396 chunks). What runs where:
+
+| Part | Where | What it does |
+|---|---|---|
+| Page (`web/public/`) | Cloudflare Worker assets | Question box, streamed answer, `[n]` citations that open the passage, a support badge per cited sentence, saved answers. |
+| `POST /api/ask` (`web/src/`) | Cloudflare Worker | Checks a Turnstile token, applies the limits below, forwards the question and a secret header to the origin and streams the reply back. |
+| Limits | One SQLite-backed Durable Object (free plan) | 10 questions per client per hour (sliding window, client = hash of the IP) and 950 per UTC day for everyone, the free OpenRouter quota being 1,000 requests a day. A question the origin could not take (down, busy, error) is given back. |
+| Origin | A 4-thread CPU-only VM at home, behind a Cloudflare Tunnel | `sourcebound serve --public`: the real pipeline (hybrid retrieval, int8 ONNX openjev-flash rerank and check), at most two questions at once. |
+| Language model | OpenRouter free tier | `nvidia/nemotron-3.5-super-vl:free`, falling back to `nvidia/nemotron-3-ultra-550b-a55b:free` and `google/gemma-4-26b-a4b-it:free`. |
+
+Your question and the retrieved passages go to those providers, which may log them. When the limits are hit or the
+origin is down, the page shows saved answers (`web/public/samples.json`), recorded in advance through the same
+pipeline and models; they are labelled as saved. Papers and questions are from
+[Qasper](https://huggingface.co/datasets/allenai/qasper) (CC BY 4.0). The Worker has its own tests with a mocked
+origin: `cd web && npm test` (limits, secret forwarding, the fallback, oversized questions, the bot check) and
+`npm run build`.
 
 ## Development
 

@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>sourcebound: ask 40 NLP papers, with citations and a support check</title>
+<meta name="description" content="A public demo of sourcebound, an open-source document question-answering tool: hybrid retrieval, cited answers, and a per-sentence check by openjev-flash.">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="/">sourcebound</a>
+  <nav>
+    <a href="https://www.parthparekhdev.com">Parth Parekh</a>
+    <a href="https://github.com/xxparthparekhxx/sourcebound">GitHub</a>
+  </nav>
+</header>
+
+<main>
+  <section class="intro">
+    <h1>Ask 40 NLP papers a question</h1>
+    <p>This is a live demo of <a href="https://github.com/xxparthparekhxx/sourcebound">sourcebound</a>, an open-source tool that answers questions over documents. It searches the papers, a language model writes an answer that cites numbered passages, and a small model, <a href="https://huggingface.co/xxparthparekhxx/openjev-flash">openjev-flash</a>, checks each cited sentence against the passages it cites.</p>
+    <p class="privacy"><strong>Privacy:</strong> your question and the passages found for it are sent to free language-model providers through OpenRouter, which may log them. Do not type anything private.</p>
+  </section>
+
+  <section class="ask" aria-labelledby="ask-h">
+    <h2 id="ask-h" class="sr">Question</h2>
+    <form id="form">
+      <label for="q" class="sr">Your question</label>
+      <textarea id="q" rows="3" maxlength="500" placeholder="Ask about the papers, for example: What baselines are presented for the ReviewQA dataset?"></textarea>
+      <div class="row">
+        <span id="count" class="muted">0 / 500</span>
+        <div id="turnstile"></div>
+        <button id="ask" type="submit">Ask</button>
+      </div>
+    </form>
+    <div class="examples">
+      <span class="muted">Examples:</span>
+      <span id="examples"></span>
+    </div>
+  </section>
+
+  <section id="notice" class="banner" hidden></section>
+
+  <section id="result" hidden aria-live="polite">
+    <p id="status" class="muted"></p>
+    <div id="answer" class="answer"></div>
+    <p id="legend" class="muted small" hidden><span class="badge ok">supported</span> the sentence is entailed by the passages it cites (openjev-flash, P(entailment) &ge; 0.5). <span class="badge warn">not supported</span> it is not. This is one small model's judgement, not a guarantee.</p>
+    <div id="sources"></div>
+  </section>
+
+  <section id="saved-wrap" class="saved">
+    <h2>Saved answers</h2>
+    <p class="muted small">Recorded in advance with the same pipeline and models. They are shown when the live demo is over its limit or unavailable, and you can open them any time.</p>
+    <div id="saved"></div>
+  </section>
+
+  <section class="how">
+    <h2>How it works</h2>
+    <details open>
+      <summary>What runs where</summary>
+      <ol>
+        <li><strong>Your browser</strong> loads this page from a Cloudflare Worker. The Worker checks a bot challenge when one is configured, allows 10 questions per visitor per hour and 950 per day in total, and forwards the question (and nothing else) with a secret header.</li>
+        <li><strong>A small home server</strong> (a 4-thread VM, no GPU) reached through a Cloudflare Tunnel runs the real Python sourcebound. It answers at most two questions at a time.</li>
+        <li><strong>Retrieval:</strong> the question is embedded with <code>BAAI/bge-small-en-v1.5</code> and searched in ChromaDB (vector, with MMR) and in SQLite FTS5 (BM25). The two lists are fused with reciprocal rank fusion. openjev-flash, run as an int8 ONNX model on the CPU, reranks the top 10 candidates, and the best 5 passages go to the model.</li>
+        <li><strong>Answer:</strong> an LLM from OpenRouter's free tier writes the answer from those passages (<code>nvidia/nemotron-3.5-super-vl:free</code>, then <code>nvidia/nemotron-3-ultra-550b-a55b:free</code>, then <code>google/gemma-4-26b-a4b-it:free</code> if the previous one is rate limited or fails). Every <code>[n]</code> is checked against the passages the model was shown, and numbers it was not given are removed.</li>
+        <li><strong>Check:</strong> each answer sentence with a citation is scored by openjev-flash against the text of the passages it cites. The badge shows that result.</li>
+      </ol>
+      <p>The index holds 1,396 chunks from 40 Qasper validation papers. It has no knowledge graph. Questions are answered over all 40 papers at once, so name the topic or paper in the question. If nothing relevant is found, sourcebound says so without calling the model.</p>
+    </details>
+    <details>
+      <summary>Evaluation numbers (copied from the README, unchanged)</summary>
+      <p class="small muted">From the repository's evaluation on the same 40 papers: 176 answerable questions, cells are the mean with a 95% bootstrap interval. The demo uses hybrid retrieval with rerank, but over 10 candidates and with the models listed above, so these tables are not a measurement of this exact deployment. See the <a href="https://github.com/xxparthparekhxx/sourcebound#evaluation">README</a> for what they do and do not support.</p>
+      <h3>Retrieval, within the question's paper</h3>
+<table>
+<thead><tr><th>setting</th><th>recall@5</th><th>recall@10</th><th>MRR@10</th></tr></thead>
+<tbody>
+<tr><td>vector</td><td>0.546 (0.477-0.611)</td><td>0.761 (0.704-0.813)</td><td>0.432 (0.377-0.487)</td></tr>
+<tr><td>vector + MMR</td><td>0.510 (0.440-0.580)</td><td>0.719 (0.659-0.775)</td><td>0.418 (0.362-0.476)</td></tr>
+<tr><td>BM25</td><td>0.496 (0.430-0.564)</td><td>0.710 (0.648-0.767)</td><td>0.374 (0.319-0.430)</td></tr>
+<tr><td>hybrid (vector + MMR, BM25, RRF)</td><td>0.586 (0.521-0.652)</td><td>0.752 (0.696-0.805)</td><td>0.450 (0.397-0.504)</td></tr>
+<tr><td>hybrid + graph</td><td>0.562 (0.494-0.627)</td><td>0.740 (0.680-0.795)</td><td>0.409 (0.358-0.463)</td></tr>
+<tr><td>hybrid + rerank</td><td>0.629 (0.566-0.696)</td><td>0.801 (0.750-0.851)</td><td>0.449 (0.397-0.503)</td></tr>
+<tr><td>hybrid + graph + rerank</td><td>0.633 (0.568-0.698)</td><td>0.810 (0.760-0.857)</td><td>0.450 (0.398-0.505)</td></tr>
+</tbody>
+</table>
+      <h3>Retrieval, pooled over all 40 papers</h3>
+<table>
+<thead><tr><th>setting</th><th>recall@5</th><th>recall@10</th><th>MRR@10</th></tr></thead>
+<tbody>
+<tr><td>vector</td><td>0.243 (0.183-0.304)</td><td>0.355 (0.289-0.422)</td><td>0.181 (0.137-0.226)</td></tr>
+<tr><td>vector + MMR</td><td>0.201 (0.144-0.260)</td><td>0.289 (0.228-0.356)</td><td>0.156 (0.113-0.202)</td></tr>
+<tr><td>BM25</td><td>0.255 (0.194-0.320)</td><td>0.343 (0.273-0.411)</td><td>0.174 (0.130-0.221)</td></tr>
+<tr><td>hybrid</td><td>0.331 (0.267-0.399)</td><td>0.399 (0.331-0.466)</td><td>0.205 (0.158-0.252)</td></tr>
+<tr><td>hybrid + graph</td><td>0.284 (0.220-0.350)</td><td>0.405 (0.338-0.474)</td><td>0.193 (0.146-0.239)</td></tr>
+<tr><td>hybrid + rerank</td><td>0.329 (0.264-0.397)</td><td>0.427 (0.358-0.499)</td><td>0.236 (0.185-0.287)</td></tr>
+<tr><td>hybrid + graph + rerank</td><td>0.328 (0.263-0.397)</td><td>0.418 (0.349-0.487)</td><td>0.232 (0.181-0.283)</td></tr>
+</tbody>
+</table>
+      <h3>Answer quality (30 questions, 15 for agent mode)</h3>
+<table>
+<thead><tr><th>run</th><th>mode</th><th>answered / no answer</th><th>cites something</th><th>citation precision</th><th>cited sentences judged supported</th></tr></thead>
+<tbody>
+<tr><td>bonsai-2 (Ollama)</td><td>pipeline</td><td>28 / 2</td><td>24</td><td>0.348 (16/46 cited passages overlap gold); per-answer mean 0.431 (0.257-0.604)</td><td>0.963 (0.907-1.000) of 54</td></tr>
+<tr><td>bonsai-2 (Ollama)</td><td>agent</td><td>15 / 0</td><td>14</td><td>0.214 (6/28); per-answer mean 0.274 (0.107-0.476)</td><td>0.738 (0.595-0.857) of 42</td></tr>
+<tr><td>nvidia/nemotron-3.5-super-vl:free (OpenRouter)</td><td>pipeline</td><td>29 / 0 (1 call failed)</td><td>25</td><td>0.346 (18/52); per-answer mean 0.448 (0.301-0.601)</td><td>0.909 (0.836-0.982) of 55</td></tr>
+</tbody>
+</table>
+      <p class="small muted">Citation precision is the share of cited passages that overlap annotated gold evidence (a lower bound). Faithfulness is the share of cited answer sentences that openjev-flash scores as entailed (probability &ge; 0.5).</p>
+    </details>
+  </section>
+</main>
+
+<footer>
+  <p>The papers and questions come from <a href="https://huggingface.co/datasets/allenai/qasper">Qasper</a> (Dasigi et al., 2021, <em>A Dataset of Information-Seeking Questions and Answers Anchored in Research Papers</em>, NAACL), released under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Papers were converted to Markdown for indexing; each source links to the paper on arXiv.</p>
+  <p>sourcebound is MIT licensed. <a href="https://github.com/xxparthparekhxx/sourcebound">Source code</a>.</p>
+</footer>
+
+<script src="/app.js" type="module"></script>
+</body>
+</html>

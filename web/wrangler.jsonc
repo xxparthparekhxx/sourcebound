@@ -1,0 +1,24 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "sourcebound",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-10-01",
+  "account_id": "af8bed0c577731b016f4bc0204901a5c",
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [{ "pattern": "sourcebound.parthparekhdev.com", "custom_domain": true }],
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
+  },
+  "durable_objects": { "bindings": [{ "name": "LIMITER", "class_name": "Limiter" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Limiter"] }],
+  "vars": {
+    "ORIGIN_URL": "https://sourcebound-origin.parthparekhdev.com",
+    "IP_LIMIT_PER_HOUR": "10",
+    "DAILY_CAP": "950",
+    "TURNSTILE_SITE_KEY": "0x4AAAAAAFs9-0_5YbRdY0-t"
+  },
+  "observability": { "enabled": true }
+}
